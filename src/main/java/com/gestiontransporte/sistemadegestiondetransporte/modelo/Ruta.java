@@ -5,4 +5,5 @@ public class Ruta {
     Parada origen;
     Parada destino;
 
+
 }
