@@ -5,12 +5,10 @@ import java.util.Objects;
 
 public class Ruta {
 
-    private Parada origen;
     private Parada destino;
     Map<Criterio, Double> criterios;
 
-    public Ruta(Parada origen, Parada destino, Map<Criterio, Double> criterios) {
-        this.origen = origen;
+    public Ruta(Parada destino, Map<Criterio, Double> criterios) {
         this.destino = destino;
         this.criterios = criterios;
     }
@@ -31,18 +29,9 @@ public class Ruta {
         this.destino = destino;
     }
 
-    public Parada getOrigen() {
-        return origen;
-    }
-
-    public void setOrigen(Parada origen) {
-        this.origen = origen;
-    }
-
     @Override
     public String toString() {
         return "Ruta{" +
-                "origen=" + origen +
                 ", destino=" + destino +
                 ", criterios=" + criterios +
                 '}';
@@ -57,6 +46,6 @@ public class Ruta {
 
     @Override
     public int hashCode() {
-        return Objects.hash(origen, destino, criterios);
+        return Objects.hash(destino, criterios);
     }
 }

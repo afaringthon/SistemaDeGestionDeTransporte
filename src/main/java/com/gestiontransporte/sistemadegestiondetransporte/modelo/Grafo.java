@@ -36,36 +36,57 @@ public class Grafo {
 
     }
 
+    public boolean modificarParada(Parada parada) {
+
+    }
+
     public boolean borrarParada(Parada parada){
 
     }
 
-    public boolean agregarRuta(Ruta ruta) {
+    public boolean agregarRuta(Parada origen, Parada destino, Map<Criterio, Double> criterios) {
 
-        if (ruta == null) {
+        if (origen == null || destino == null || criterios == null) {
             return false;
         }
 
-        if (ruta.getOrigen() == null || ruta.getDestino() == null) {
+        if (!this.adyacencia.containsKey(origen) || !this.adyacencia.containsKey(destino)) {
             return false;
         }
 
-        if (!adyacencia.containsKey(ruta.getOrigen()) || !adyacencia.containsKey(ruta.getDestino())) {
-            return false;
-        }
-
-        for (Ruta r : adyacencia.get(ruta.getOrigen())) {
-            if (r.getDestino().equals(ruta.getDestino())) {
+        for (Ruta rutaExistente : this.adyacencia.get(origen)) {
+            if (rutaExistente.getDestino().equals(destino)) {
                 return false;
             }
         }
 
-        adyacencia.get(ruta.getOrigen()).add(ruta);
+        Ruta nuevaRuta = new Ruta(destino, criterios);
+        this.adyacencia.get(origen).add(nuevaRuta);
+
         return true;
     }
 
-    public boolean eliminarRuta(Ruta ruta){
+    public boolean modificarRuta(Parada origen, Parada destino){
 
+    }
+
+    public boolean eliminarRuta(Parada origen, Parada destino){
+        if (origen == null || destino == null) {
+            return false;
+        }
+
+        if (!this.adyacencia.containsKey(origen) || !this.adyacencia.containsKey(destino)) {
+            return false;
+        }
+
+        for( Ruta r: this.adyacencia.get(origen) ){
+            if(r.getDestino().equals(destino)){
+                this.adyacencia.get(origen).remove(r);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void mostrarGrafo(){
