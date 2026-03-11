@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Grafo {
     List<Parada> paradas = new ArrayList<>();
-    private Map<Integer, List<Ruta>> adyacencia = new HashMap<>();
+    private Map<Integer, List<Ruta>> adyacencia = new HashMap<>(); //parada.GetId
 
     public void agregarParada(Parada parada){
         paradas.add(parada);
