@@ -4,23 +4,17 @@ import java.util.Map;
 import java.util.Objects;
 
 public class Ruta {
-
     private Parada origen;
     private Parada destino;
-    Map<Criterio, Double> criterios;
+    private double distancia;
+    private double tiempo;
 
-    public Ruta(Parada origen, Parada destino, Map<Criterio, Double> criterios) {
+    public Parada getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(Parada origen) {
         this.origen = origen;
-        this.destino = destino;
-        this.criterios = criterios;
-    }
-
-    public Map<Criterio, Double> getCriterios() {
-        return criterios;
-    }
-
-    public void setCriterios(Map<Criterio, Double> criterios) {
-        this.criterios = criterios;
     }
 
     public Parada getDestino() {
@@ -31,12 +25,30 @@ public class Ruta {
         this.destino = destino;
     }
 
-    public Parada getOrigen() {
-        return origen;
+    public double getDistancia() {
+        return distancia;
     }
 
-    public void setOrigen(Parada origen) {
-        this.origen = origen;
+    public void setDistancia(double distancia) {
+        this.distancia = distancia;
+    }
+
+    public double getTiempo() {
+        return tiempo;
+    }
+
+    public void setTiempo(double tiempo) {
+        this.tiempo = tiempo;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
     }
 
     @Override
@@ -44,19 +56,7 @@ public class Ruta {
         return "Ruta{" +
                 "origen=" + origen +
                 ", destino=" + destino +
-                ", criterios=" + criterios +
                 '}';
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Ruta ruta = (Ruta) o;
-        return Objects.equals(origen, ruta.origen) && Objects.equals(destino, ruta.destino) && Objects.equals(criterios, ruta.criterios);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(origen, destino, criterios);
-    }
 }
