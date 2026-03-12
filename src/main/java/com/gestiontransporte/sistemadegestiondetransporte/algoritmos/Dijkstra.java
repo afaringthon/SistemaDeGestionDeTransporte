@@ -59,9 +59,11 @@ public class Dijkstra {
 
     public static Resultado calcular(Grafo grafo, int idOrigen, Criterio criterio) {
         Map<Integer, List<Ruta>> listaAdyacencia = new HashMap<>();
+
         for (Parada p : grafo.getParadas()) {
             listaAdyacencia.putIfAbsent(p.getId(), new ArrayList<>());
         }
+
         for (Ruta r : grafo.getTodasLasRutas()) {
             int u = r.getOrigen().getId();
             listaAdyacencia.putIfAbsent(u, new ArrayList<>());
