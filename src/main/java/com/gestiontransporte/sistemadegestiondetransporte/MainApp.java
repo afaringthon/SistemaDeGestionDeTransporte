@@ -80,6 +80,10 @@ public class MainApp extends Application {
         btnAgregarParada.setOnAction(e -> {
             try {
                 int id = Integer.parseInt(txtIdParada.getText());
+                if(existeParadaConId(id)){
+                    System.out.println("ya hay una parada con ese ID");
+                    return;
+                }
                 String nombre = txtNombreParada.getText();
                 if (nombre.isEmpty()) {
                     System.out.println("El nombre no puede estar vacío");
@@ -274,6 +278,14 @@ public class MainApp extends Application {
             comboRutaDestino.getItems().setAll(grafo.getParadas());
         }
     }
+    private boolean existeParadaConId(int id) {
+        for (Parada p : grafo.getParadas()) {
+            if (p.getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void drawGraph(Grafo grafo, Pane graphPane, List<Parada> shortestPath) {
         graphPane.getChildren().clear();
@@ -333,6 +345,7 @@ public class MainApp extends Application {
             label.setFill(Color.BLACK);
             graphPane.getChildren().add(label);
         }
+
     }
 
     public static void main(String[] args) {
