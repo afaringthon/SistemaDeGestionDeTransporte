@@ -113,21 +113,31 @@ public class MainApp extends Application {
                 return;
             }
 
-            // eliminar parada de la lista
-            grafo.getParadas().remove(seleccionada);
+            int idEliminar = seleccionada.getId();
 
-            // Quitar rutas que usen esa parada
+            //Construir nueva lista de paradas SIN la seleccionada
+            List<Parada> nuevasParadas = new ArrayList<>();
+            for (Parada p : grafo.getParadas()) {
+                if (p.getId() != idEliminar) {      // si no es la que quiero borrar, la conservo
+                    nuevasParadas.add(p);
+                }
+            }
+
+            // Construir nueva lista de rutas que no usen esa parada
             List<Ruta> nuevasRutas = new ArrayList<>();
             for (Ruta r : grafo.getTodasLasRutas()) {
-                if (r.getOrigen().getId() != seleccionada.getId() &&
-                        r.getDestino().getId() != seleccionada.getId()) {
+                boolean usaParada =
+                        r.getOrigen().getId() == idEliminar ||
+                                r.getDestino().getId() == idEliminar;
+
+                if (!usaParada) {
                     nuevasRutas.add(r);
                 }
             }
 
-            // grafo
+            // Reconstruir el grafo con las nuevas listas
             Grafo nuevo = new Grafo();
-            for (Parada p : grafo.getParadas()) {
+            for (Parada p : nuevasParadas) {
                 nuevo.agregarParada(p);
             }
             for (Ruta r : nuevasRutas) {
@@ -135,6 +145,7 @@ public class MainApp extends Application {
             }
             grafo = nuevo;
 
+            // Actualizar combos y dibujo
             actualizarCombosParadas();
             comboEliminarParada.getItems().setAll(grafo.getParadas());
             drawGraph(grafo, graphPane, null);

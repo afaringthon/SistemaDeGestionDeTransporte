@@ -30,10 +30,7 @@ public class Parada {
 
     @Override
     public String toString() {
-        return "Parada{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                '}';
+        return id + " - " + nombre;
     }
 
     @Override
