@@ -28,4 +28,7 @@ public class Grafo {
         }
         return resultado;
     }
+    public List<Ruta> getRutasDesde(int idParada) {
+        return adyacencia.getOrDefault(idParada, Collections.emptyList());
+    }
 }
