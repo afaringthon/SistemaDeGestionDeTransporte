@@ -8,8 +8,6 @@ public class Ruta {
     private Parada destino;
     private double distancia;
     private double tiempo;
-    private double costo;
-    private double transbordos;
 
     public Parada getOrigen() {
         return origen;

@@ -14,34 +14,43 @@ public class Dijkstra {
         private final Map<Integer, Double> distancias;
         private final Map<Integer, Integer> anteriores;
 
+        //Constructor
         public Resultado(Map<Integer, Double> distancias, Map<Integer, Integer> anteriores) {
             this.distancias = distancias;
             this.anteriores = anteriores;
         }
 
+
         public List<Parada> reconstruirCamino(Grafo grafo, int idOrigen, int idDestino) {
             List<Parada> camino = new ArrayList<>();
-            // si la distancia al destino es infinita, no hay camino
+
+            //Pregunta si el destino existe o si es infinito(no camino posible)
             if (!distancias.containsKey(idDestino)
                     || distancias.get(idDestino) == Double.POSITIVE_INFINITY) {
                 return camino;
             }
 
+
             Integer actual = idDestino;
             while (actual != null) {
                 Parada p = null;
+
                 for (Parada parada : grafo.getParadas()) {
                     if (parada.getId() == actual) {
                         p = parada;
                         break;
                     }
                 }
+
                 if (p != null) {
                     camino.add(p);
                 }
-                if (actual.equals(idOrigen)) break;
-                actual = anteriores.get(actual);
+
+                if( actual.equals(idOrigen) ) break;
+                    actual = anteriores.get(actual);
             }
+
+            //Funcion de Listas
             Collections.reverse(camino);
             return camino;
         }
@@ -63,16 +72,28 @@ public class Dijkstra {
         for (Parada p : grafo.getParadas()) {
             listaAdyacencia.putIfAbsent(p.getId(), new ArrayList<>());
         }
+        //Si su arreglo no existe, la crea
 
+        //Colocamos cada ruta a cada parada establecida
         for (Ruta r : grafo.getTodasLasRutas()) {
             int u = r.getOrigen().getId();
             listaAdyacencia.putIfAbsent(u, new ArrayList<>());
             listaAdyacencia.get(u).add(r);
+            // 1 -> [ 1->2 , 1-> 3]
+            //Nos ayuda a saber saber los vecino que se puede ir desde 1
         }
 
+
+        //idParada, distancia minima desde el origen
         Map<Integer, Double> dist = new HashMap<>();
+        //Parada actual, parada anterior
         Map<Integer, Integer> prev = new HashMap<>();
+
         Map<Integer, Boolean> procesado = new HashMap<>();
+
+        //Distancia = infinito indica que no hay caminos conocidos
+        //Anterior = null
+        // Procesado = false
 
         for (Parada p : grafo.getParadas()) {
             dist.put(p.getId(), Double.POSITIVE_INFINITY);
@@ -80,38 +101,67 @@ public class Dijkstra {
             procesado.put(p.getId(), false);
         }
         dist.put(idOrigen, 0.0);
+        //Comienza del origen
 
-        PriorityQueue<NodoDistancia> cola =
-                new PriorityQueue<>(Comparator.comparingDouble(n -> n.distancia));
+        //Sale el con mayor prioridad (menor distancia)
+        //Comparator.comparingDouble, ordena los nodos segun la menor distancia
+        PriorityQueue<NodoDistancia> cola = new PriorityQueue<>(Comparator.comparingDouble(n -> n.distancia));
         cola.add(new NodoDistancia(idOrigen, 0.0));
+        //Mete nodo inicial en la cola
 
+        //Mientras haya nodos pendientes en cola, sigue
         while (!cola.isEmpty()) {
             NodoDistancia actual = cola.poll();
             int u = actual.id;
+            // Saca el nodo con menor distancia y guarda su id en u
+            // Poll devuelve y elimina el primero de la cola
 
+
+            //Si este nodo fue procesado, lo salta, el mismo nodo puede entrar varias veces en la cola con diferentes distancias
             if (Boolean.TRUE.equals(procesado.get(u))) {
                 continue;
             }
             procesado.put(u, true);
+            //Marca ese nodo como procesado si fue su primera vez
 
+            //Busca las rutas que salen del nodo actual, sino tiene, sigue con el otro
             List<Ruta> vecinos = listaAdyacencia.get(u);
             if (vecinos == null) continue;
 
+            //Recorre rutas desde vecinos = u
             for (Ruta ruta : vecinos) {
+
+                //Consigo el nodo destino de esa ruta
                 int v = ruta.getDestino().getId();
+
+                //Pregunto cual criterio usar
                 double peso = (criterio == Criterio.TIEMPO)
                         ? ruta.getTiempo()
                         : ruta.getDistancia();
 
+                // Calcular cuanto costaria llegar al vecino(v) pasando por u
                 double nuevaDist = dist.get(u) + peso;
+
+                //Si nueva distancia es mejor de su vecino, actualiza
+
                 if (nuevaDist < dist.get(v)) {
+
+                    //Guarda la nueva mejor distancia hacia v
                     dist.put(v, nuevaDist);
+
+                    //Guarda que para llegar a v, el mejor paso anterior es u
+
                     prev.put(v, u);
+
+                    //Descubre un camino mas corto al vecino, y vecino debe volver a comprobarse para seguir el camino
+                    //Comenzamos desde el origen y luego seguimos por los vecinos
                     cola.add(new NodoDistancia(v, nuevaDist));
                 }
             }
         }
 
+        //Cuando termina devuelve un resultado con:
+        // Todas las distancias minimas y todos los nodos anteriores
         return new Resultado(dist, prev);
     }
 }

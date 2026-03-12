@@ -63,8 +63,9 @@ public class MainApp extends Application {
             }
             Dijkstra.Resultado resultado = Dijkstra.calcular(grafo, origen.getId(), Dijkstra.Criterio.TIEMPO);
             var path = resultado.reconstruirCamino(grafo, origen.getId(), destino.getId());
-            //?
+
             drawGraph(grafo, graphPane, path);
+            //var path es parecido a un List<Parada> path, pero por comodidad usamos path
         });
 
         HBox barraCamino = new HBox(10, comboOrigen, comboDestino, btnBuscarCamino);

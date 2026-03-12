@@ -56,6 +56,7 @@ public class Grafo {
 
         int idOrigen = viejaRuta.getOrigen().getId(); // Encontramos el id de la parada de origen de la ruta vieja
         List<Ruta> rutasDelOrigen = adyacencia.get(idOrigen); // movemos las rutas de esa parada de origen a una lista
+
         for(int ind = 0 ; ind < rutasDelOrigen.size(); ind++){ // recorremos esa lista de rutas.
             if(rutasDelOrigen.get(ind).equals(viejaRuta)){ // preguntamos si en la ruta en la que estamos en la lista es igual a la vieja ruta a modificar
                 rutasDelOrigen.set(ind, nuevaRuta); // cambiamos la vieja ruta por la nueva ruta.
@@ -132,6 +133,7 @@ public class Grafo {
         return new ArrayList<>(paradas);
     }
 
+
     public List<Ruta> getTodasLasRutas(){
         List<Ruta> resultado = new ArrayList<>();
         for(List<Ruta> list : adyacencia.values()){
@@ -139,6 +141,8 @@ public class Grafo {
         }
         return resultado;
     }
+
+
     public List<Ruta> getRutasDesde(int idParada) {
         return adyacencia.getOrDefault(idParada, Collections.emptyList());
     }
