@@ -52,11 +52,79 @@ public class Grafo {
         adyacencia.get(origen).add(ruta);
     }
 
-    public void modificarRuta(Ruta ruta){}
+    public void modificarRuta(Ruta viejaRuta, Ruta nuevaRuta){
+
+        int idOrigen = viejaRuta.getOrigen().getId(); // Encontramos el id de la parada de origen de la ruta vieja
+        List<Ruta> rutasDelOrigen = adyacencia.get(idOrigen); // movemos las rutas de esa parada de origen a una lista
+        for(int ind = 0 ; ind < rutasDelOrigen.size(); ind++){ // recorremos esa lista de rutas.
+            if(rutasDelOrigen.get(ind).equals(viejaRuta)){ // preguntamos si en la ruta en la que estamos en la lista es igual a la vieja ruta a modificar
+                rutasDelOrigen.set(ind, nuevaRuta); // cambiamos la vieja ruta por la nueva ruta.
+                break;
+            }
+        }
+    }
 
 
     public void eliminarRuta(Ruta ruta){
+        int idOrigen = ruta.getOrigen().getId();
+        List<Ruta> rutas = adyacencia.get(idOrigen);
 
+        for(int ind = 0 ; ind < rutas.size() ; ind++){
+            if(rutas.get(ind).equals(ruta) ){
+                rutas.remove(ind);
+            }
+        }
+
+    }
+
+    public void crearRutaDoble(Parada o, Parada d, double dist, double tiem) {
+        Ruta ida = new Ruta();
+        ida.setOrigen(o);
+        ida.setDestino(d);
+        ida.setDistancia(dist);
+        ida.setTiempo(tiem);
+        agregarRuta(ida);
+
+        Ruta vuelta = new Ruta();
+        vuelta.setOrigen(d);
+        vuelta.setDestino(o);
+        vuelta.setDistancia(dist);
+        vuelta.setTiempo(tiem);
+        agregarRuta(vuelta);
+    }
+
+    public void eliminarRutaDoble(Parada origen, Parada destino){
+        if(origen == null || destino == null){
+            return;
+        }
+        int idOrigen = origen.getId();
+        int idDestino = destino.getId();
+
+        // eliminar origen a destino
+        List<Ruta> rutasOrigen = adyacencia.get(idOrigen);
+        if(rutasOrigen != null){
+            for(int i = 0; i < rutasOrigen.size(); i++){
+                Ruta r = rutasOrigen.get(i);
+
+                if(r.getDestino().getId() == idDestino){
+                    rutasOrigen.remove(i);
+                    break;
+                }
+            }
+        }
+
+        // eliminar destino a origen
+        List<Ruta> rutasDestino = adyacencia.get(idDestino);
+        if(rutasDestino != null){
+            for(int i = 0; i < rutasDestino.size(); i++){
+                Ruta r = rutasDestino.get(i);
+
+                if(r.getDestino().getId() == idOrigen){
+                    rutasDestino.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
 
