@@ -190,11 +190,14 @@ public class MainApp extends Application {
             List<Ruta> rutas = grafo.getTodasLasRutas();
             List<Ruta> nuevasRutas = new ArrayList<>();
 
-            //TODO
+
+            //No agregar rutas o->d y d->o
             for (Ruta r : rutas) {
-                boolean esIda = r.getOrigen().getId() == o.getId() && r.getDestino().getId() == d.getId();
-                boolean esVuelta = r.getOrigen().getId() == d.getId() && r.getDestino().getId() == o.getId();
-                if (!esIda && !esVuelta) {
+                boolean mismaPareja =
+                        (r.getOrigen().getId() == o.getId() && r.getDestino().getId() == d.getId()) ||
+                                (r.getOrigen().getId() == d.getId() && r.getDestino().getId() == o.getId());
+
+                if (!mismaPareja) {
                     nuevasRutas.add(r);
                 }
             }
