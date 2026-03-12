@@ -34,7 +34,12 @@ public class JsonData {
     public static Grafo cargar() throws IOException{
         try(Reader reader = new FileReader(ruta)){
             GrafoData data = gson.fromJson(reader, GrafoData.class);
-            //reconstruir
+
+            if (data == null || data.paradas == null || data.rutas == null) {
+                System.out.println("grafo.json está vacío o no válido. Se crea grafo nuevo.");
+                return new Grafo();
+            }
+
             Grafo grafo = new Grafo();
 
             for(Parada p : data.paradas){

@@ -10,7 +10,11 @@ module com.gestiontransporte.sistemadegestiondetransporte {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.google.gson;
+    requires java.desktop;
 
     opens com.gestiontransporte.sistemadegestiondetransporte to javafx.fxml;
     exports com.gestiontransporte.sistemadegestiondetransporte;
+
+    opens com.gestiontransporte.sistemadegestiondetransporte.persistencia to com.google.gson;
+    opens com.gestiontransporte.sistemadegestiondetransporte.modelo to com.google.gson;
 }
