@@ -25,8 +25,8 @@ import java.util.*;
 
 public class MainApp extends Application {
 
-    Grafo grafo = new Grafo(); // se guardan las paradas y rutas
-    private Pane graphPane; //Panel donde se dibuja visualmente el grafo
+    Grafo grafo = new Grafo();
+    private Pane graphPane;
 
     // Combos globales
     private ComboBox<Parada> comboOrigen;
@@ -38,7 +38,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) {
         try{
-            grafo = JsonData.cargar(); // carga el archivo
+            grafo = JsonData.cargar();
         }catch (IOException e){
             grafo = new Grafo();
         }
@@ -51,7 +51,7 @@ public class MainApp extends Application {
         comboOrigen.setPromptText("Origen");
         comboDestino.setPromptText("Destino");
 
-        actualizarCombosParadas(); //lena los campos con las paradas actuales
+        actualizarCombosParadas();
 
         Button btnBuscarCamino = new Button("Camino más rápido (tiempo)");
         btnBuscarCamino.setOnAction(e -> {
@@ -81,6 +81,10 @@ public class MainApp extends Application {
         btnAgregarParada.setOnAction(e -> {
             try {
                 int id = Integer.parseInt(txtIdParada.getText());
+                if(existeParadaConId(id)){
+                    System.out.println("ya hay una parada con ese ID");
+                    return;
+                }
                 String nombre = txtNombreParada.getText();
                 if (nombre.isEmpty()) {
                     System.out.println("El nombre no puede estar vacío");
@@ -110,15 +114,44 @@ public class MainApp extends Application {
                 return;
             }
 
-            grafo.eliminarParada(seleccionada.getId());
+            int idEliminar = seleccionada.getId();
 
+            //Construir nueva lista de paradas SIN la seleccionada
+            List<Parada> nuevasParadas = new ArrayList<>();
+            for (Parada p : grafo.getParadas()) {
+                if (p.getId() != idEliminar) {      // si no es la que quiero borrar, la conservo
+                    nuevasParadas.add(p);
+                }
+            }
+
+            // Construir nueva lista de rutas que no usen esa parada
+            List<Ruta> nuevasRutas = new ArrayList<>();
+            for (Ruta r : grafo.getTodasLasRutas()) {
+                boolean usaParada =
+                        r.getOrigen().getId() == idEliminar ||
+                                r.getDestino().getId() == idEliminar;
+
+                if (!usaParada) {
+                    nuevasRutas.add(r);
+                }
+            }
+
+            // Reconstruir el grafo con las nuevas listas
+            Grafo nuevo = new Grafo();
+            for (Parada p : nuevasParadas) {
+                nuevo.agregarParada(p);
+            }
+            for (Ruta r : nuevasRutas) {
+                nuevo.agregarRuta(r);
+            }
+            grafo = nuevo;
+
+            // Actualizar combos y dibujo
             actualizarCombosParadas();
             comboEliminarParada.getItems().setAll(grafo.getParadas());
             drawGraph(grafo, graphPane, null);
         });
 
-
-        //organiza visualmente los controles de paradas
         VBox panelParadas = new VBox(5,
                 new Text("Paradas"),
                 txtIdParada, txtNombreParada, btnAgregarParada,
@@ -151,7 +184,7 @@ public class MainApp extends Application {
                 double tiem = Double.parseDouble(txtTiempo.getText());
 
                 // crear ruta ida y vuelta
-                grafo.crearRutaDoble(o,d,dist,tiem);
+                crearRutaDoble(o, d, dist, tiem);
 
                 drawGraph(grafo, graphPane, null);
                 txtDistancia.clear();
@@ -169,9 +202,33 @@ public class MainApp extends Application {
                 System.out.println("Debes elegir origen y destino para eliminar la ruta");
                 return;
             }
-            grafo.eliminarRutaDoble(o, d);
-            drawGraph(grafo, graphPane, null);
 
+            List<Ruta> rutas = grafo.getTodasLasRutas();
+            List<Ruta> nuevasRutas = new ArrayList<>();
+
+
+            //No agregar rutas o->d y d->o
+            for (Ruta r : rutas) {
+                boolean mismaPareja =
+                        (r.getOrigen().getId() == o.getId() && r.getDestino().getId() == d.getId()) ||
+                                (r.getOrigen().getId() == d.getId() && r.getDestino().getId() == o.getId());
+
+                if (!mismaPareja) {
+                    nuevasRutas.add(r);
+                }
+            }
+
+            // Reconstruir grafo con las mismas paradas
+            Grafo nuevo = new Grafo();
+            for (Parada p : grafo.getParadas()) {
+                nuevo.agregarParada(p);
+            }
+            for (Ruta r : nuevasRutas) {
+                nuevo.agregarRuta(r);
+            }
+            grafo = nuevo;
+
+            drawGraph(grafo, graphPane, null);
         });
 
         VBox panelRutas = new VBox(5,
@@ -202,6 +259,22 @@ public class MainApp extends Application {
     }
 
 
+    private void crearRutaDoble(Parada o, Parada d, double dist, double tiem) {
+        Ruta ida = new Ruta();
+        ida.setOrigen(o);
+        ida.setDestino(d);
+        ida.setDistancia(dist);
+        ida.setTiempo(tiem);
+        grafo.agregarRuta(ida);
+
+        Ruta vuelta = new Ruta();
+        vuelta.setOrigen(d);
+        vuelta.setDestino(o);
+        vuelta.setDistancia(dist);
+        vuelta.setTiempo(tiem);
+        grafo.agregarRuta(vuelta);
+    }
+
     // Actualiza todos los ComboBox de paradas
     private void actualizarCombosParadas() {
         if (comboOrigen != null) {
@@ -217,18 +290,23 @@ public class MainApp extends Application {
             comboRutaDestino.getItems().setAll(grafo.getParadas());
         }
     }
+    private boolean existeParadaConId(int id) {
+        for (Parada p : grafo.getParadas()) {
+            if (p.getId() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private void drawGraph(Grafo grafo, Pane graphPane, List<Parada> shortestPath) {
         graphPane.getChildren().clear();
-        //borrar dibujo anterior
 
         int n = grafo.getParadas().size();
         double centerX = 300, centerY = 200, radius = 150;
         Map<Integer, double[]> positions = new HashMap<>();
-        //prepara posiciones
 
-
-        // Posicionar nodos en circulo
+        // Posicionar nodos en círculo
         for (int i = 0; i < n; i++) {
             double angle = 2 * Math.PI * i / n;
             double x = centerX + Math.cos(angle) * radius;
@@ -279,6 +357,7 @@ public class MainApp extends Application {
             label.setFill(Color.BLACK);
             graphPane.getChildren().add(label);
         }
+
     }
 
     public static void main(String[] args) {

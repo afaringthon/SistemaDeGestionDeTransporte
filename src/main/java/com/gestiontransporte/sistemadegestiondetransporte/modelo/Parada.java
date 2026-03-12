@@ -32,10 +32,7 @@ public class Parada {
     //Para no imprimir caracteres raros
     @Override
     public String toString() {
-        return "Parada{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                '}';
+        return id + " - " + nombre;
     }
 
 
