@@ -6,9 +6,10 @@ public class Parada {
 
     private int id;
     private String nombre;
+    private static int serial = 1;
 
-    public Parada(int id, String nombre) {
-        this.id = id;
+    public Parada(String nombre) {
+        this.id = serial++;
         this.nombre = nombre;
     }
 

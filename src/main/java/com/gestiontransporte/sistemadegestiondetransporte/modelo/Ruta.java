@@ -9,6 +9,7 @@ public class Ruta {
     private double distancia;
     private double tiempo;
 
+
     public Parada getOrigen() {
         return origen;
     }

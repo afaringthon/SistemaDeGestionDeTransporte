@@ -3,68 +3,111 @@ package com.gestiontransporte.sistemadegestiondetransporte.modelo;
 import java.util.*;
 
 public class Grafo {
-    private final List<Parada> paradas = new ArrayList<>();
-    private final Map<Integer, List<Ruta>> adyacencia = new HashMap<>(); //parada.GetId
+    private final Map<Parada, List<Ruta>> adyacencia;
 
-    public void agregarParada(Parada parada){
-        paradas.add(parada);
-        adyacencia.putIfAbsent(parada.getId(), new ArrayList<>());
+    public Grafo() {
+        adyacencia = new HashMap<>();
     }
 
-    public boolean modificarParada(int id, Parada parada){
-        for (Parada p : paradas){
-            if(p.getId() == id){
-                p.setNombre(parada.getNombre());
+    public boolean agregarParada(Parada parada){
+
+        if(parada == null){
+            return false;
+        }
+
+        if(adyacencia.containsKey(parada)){
+            return false;
+        }
+
+        adyacencia.put(parada, new ArrayList<>());
+        return true;
+    }
+
+    public boolean modificarParada(int idViejaParada, Parada nuevaParada){
+
+        if(nuevaParada == null){
+            return false;
+        }
+
+        for(Parada p : adyacencia.keySet()){
+            if(p.getId() == idViejaParada){
+                p.setNombre(nuevaParada.getNombre());
                 return true;
             }
         }
         return false;
     }
 
-    public void eliminarParada(int id){
-        // eliminar la parada de la lista
-        for(int i = 0; i < paradas.size(); i++){
-            if(paradas.get(i).getId() == id){
-                paradas.remove(i);
-                break;
-            }
+    public boolean eliminarParada(Parada paradaAEliminar){
+
+        if(paradaAEliminar == null || !adyacencia.containsKey(paradaAEliminar)){
+            return false;
         }
 
-        // eliminar las rutas que salen de esa parada
-        adyacencia.remove(id);
+        adyacencia.remove(paradaAEliminar);
 
-
-        // eliminar las rutas que llegan a esa parada
         for(List<Ruta> rutas : adyacencia.values()){
-            for(int i = 0; i < rutas.size(); i++){
-                if(rutas.get(i).getDestino().getId() == id){
-                    rutas.remove(i);
-                    i--; // ajustar indice porque la lista retrocedio
-                }
+            rutas.removeIf(ruta -> ruta.getDestino().getId() == paradaAEliminar.getId());
+        }
+
+        return true;
+    }
+
+
+    public boolean agregarRuta(Ruta ruta) {
+        if(ruta == null){
+            return false;
+        }
+
+        Parada origen = ruta.getOrigen();
+        Parada destino = ruta.getDestino();
+
+        if(origen == null || destino == null){
+            return false;
+        }
+
+        if(!adyacencia.containsKey(origen) || !adyacencia.containsKey(destino)){
+            return false;
+        }
+
+        List<Ruta> rutasOrigen = adyacencia.get(origen);
+
+        //verifica que no haya una ruta entre existente entre las paradas
+        for(Ruta r : rutasOrigen){
+            if(r.getDestino().equals(destino)){
+                return false;
             }
         }
+
+        rutasOrigen.add(ruta);
+
+        return true;
     }
 
+    public boolean modificarRuta(Ruta viejaRuta, Ruta nuevaRuta){
 
-    public void agregarRuta(Ruta ruta) {
-        int origen = ruta.getOrigen().getId();
-        adyacencia.putIfAbsent(origen, new ArrayList<>());
-        adyacencia.get(origen).add(ruta);
-    }
-
-    public void modificarRuta(Ruta viejaRuta, Ruta nuevaRuta){
-
-        int idOrigen = viejaRuta.getOrigen().getId(); // Encontramos el id de la parada de origen de la ruta vieja
-        List<Ruta> rutasDelOrigen = adyacencia.get(idOrigen); // movemos las rutas de esa parada de origen a una lista
-
-        for(int ind = 0 ; ind < rutasDelOrigen.size(); ind++){ // recorremos esa lista de rutas.
-            if(rutasDelOrigen.get(ind).equals(viejaRuta)){ // preguntamos si en la ruta en la que estamos en la lista es igual a la vieja ruta a modificar
-                rutasDelOrigen.set(ind, nuevaRuta); // cambiamos la vieja ruta por la nueva ruta.
-                break;
-            }
+        if(viejaRuta == null || nuevaRuta == null){
+            return false;
         }
+
+        Parada viejoOrigen = nuevaRuta.getOrigen();
+        Parada viejoDestino = nuevaRuta.getDestino();
+
+        Parada nuevoOrigen = nuevaRuta.getOrigen();
+        Parada nuevoDestino = nuevaRuta.getDestino();
+
+        if( !adyacencia.containsKey(nuevoOrigen) || !adyacencia.containsKey(nuevoDestino) ||
+                !adyacencia.containsKey(viejoOrigen) || !adyacencia.containsKey(viejoDestino)){
+            return false;
+        }
+
+
+
+
+
     }
 
+//Validar todas estas funciones
 
     public void eliminarRuta(Ruta ruta){
         int idOrigen = ruta.getOrigen().getId();
@@ -134,6 +177,7 @@ public class Grafo {
     }
 
 
+    //Funcion inecesaria, hacer un return simple de todas las listas
     public List<Ruta> getTodasLasRutas(){
         List<Ruta> resultado = new ArrayList<>();
         for(List<Ruta> list : adyacencia.values()){

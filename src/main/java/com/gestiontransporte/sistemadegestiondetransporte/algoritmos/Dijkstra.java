@@ -11,7 +11,7 @@ public class Dijkstra {
     public enum Criterio { TIEMPO, DISTANCIA }
 
     public static class Resultado {
-        private final Map<Integer, Double> distancias;
+        private final Map<Integer, Double> distancias; // Cambiar nombre mas claros, como peso
         private final Map<Integer, Integer> anteriores;
 
         //Constructor
@@ -55,7 +55,7 @@ public class Dijkstra {
             return camino;
         }
     }
-
+//record
     private static class NodoDistancia {
         int id;
         double distancia;
@@ -84,7 +84,7 @@ public class Dijkstra {
         }
 
 
-        //idParada, distancia minima desde el origen
+        //Cada idParada, distancia minima desde el origen
         Map<Integer, Double> dist = new HashMap<>();
         //Parada actual, parada anterior
         Map<Integer, Integer> prev = new HashMap<>();
@@ -103,59 +103,55 @@ public class Dijkstra {
         dist.put(idOrigen, 0.0);
         //Comienza del origen
 
-        //Sale el con mayor prioridad (menor distancia)
         //Comparator.comparingDouble, ordena los nodos segun la menor distancia
         PriorityQueue<NodoDistancia> cola = new PriorityQueue<>(Comparator.comparingDouble(n -> n.distancia));
+
         cola.add(new NodoDistancia(idOrigen, 0.0));
         //Mete nodo inicial en la cola
 
         //Mientras haya nodos pendientes en cola, sigue
         while (!cola.isEmpty()) {
             NodoDistancia actual = cola.poll();
-            int u = actual.id;
-            // Saca el nodo con menor distancia y guarda su id en u
-            // Poll devuelve y elimina el primero de la cola
+            int nodoActual = actual.id;
+            // Poll consigue el primer elemento de la cola
 
 
-            //Si este nodo fue procesado, lo salta, el mismo nodo puede entrar varias veces en la cola con diferentes distancias
-            if (Boolean.TRUE.equals(procesado.get(u))) {
+            //Si este nodo fue procesado, lo salta, el mismo nodo puede entrar varias veces en la cola
+            if (Boolean.TRUE.equals(procesado.get(nodoActual))) {
                 continue;
             }
-            procesado.put(u, true);
-            //Marca ese nodo como procesado si fue su primera vez
+            procesado.put(nodoActual, true);
 
             //Busca las rutas que salen del nodo actual, sino tiene, sigue con el otro
-            List<Ruta> vecinos = listaAdyacencia.get(u);
+            List<Ruta> vecinos = listaAdyacencia.get(nodoActual);
             if (vecinos == null) continue;
 
-            //Recorre rutas desde vecinos = u
+            //Recorre rutas desde vecinos = nodoActual
             for (Ruta ruta : vecinos) {
 
                 //Consigo el nodo destino de esa ruta
-                int v = ruta.getDestino().getId();
+                int nodoVecino = ruta.getDestino().getId();
 
-                //Pregunto cual criterio usar
+                //Pregunto si es Tiempo
                 double peso = (criterio == Criterio.TIEMPO)
                         ? ruta.getTiempo()
                         : ruta.getDistancia();
 
-                // Calcular cuanto costaria llegar al vecino(v) pasando por u
-                double nuevaDist = dist.get(u) + peso;
+                // Calcular cuanto costaria llegar al vecino pasando por nodoActual + su criterio
+                double nuevaDist = dist.get(nodoActual) + peso;
 
                 //Si nueva distancia es mejor de su vecino, actualiza
 
-                if (nuevaDist < dist.get(v)) {
+                if (nuevaDist < dist.get(nodoVecino)) {
 
-                    //Guarda la nueva mejor distancia hacia v
-                    dist.put(v, nuevaDist);
+                    //Guarda la nmejor distancia
+                    dist.put(nodoVecino, nuevaDist);
 
-                    //Guarda que para llegar a v, el mejor paso anterior es u
+                    //Cambia el vecino con el que tiene mejor camino
+                    prev.put(nodoVecino, nodoActual);
 
-                    prev.put(v, u);
-
-                    //Descubre un camino mas corto al vecino, y vecino debe volver a comprobarse para seguir el camino
-                    //Comenzamos desde el origen y luego seguimos por los vecinos
-                    cola.add(new NodoDistancia(v, nuevaDist));
+                    //Volvemos a colocar el vecino, porque con la nueva distancia, puede que por este sea un mejor camino
+                    cola.add(new NodoDistancia(nodoVecino, nuevaDist));
                 }
             }
         }
