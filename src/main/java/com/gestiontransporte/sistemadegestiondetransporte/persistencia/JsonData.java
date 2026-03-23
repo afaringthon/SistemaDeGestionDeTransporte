@@ -1,4 +1,5 @@
 package com.gestiontransporte.sistemadegestiondetransporte.persistencia;
+
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Grafo;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Parada;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Ruta;
@@ -7,10 +8,10 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class JsonData {
+
     static String home = System.getProperty("user.home");
     static String ruta = home + File.separator + "grafo.json";
 
@@ -19,36 +20,48 @@ public class JsonData {
         List<Ruta> rutas;
     }
 
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .create();
+
 
     public static void guardar(Grafo grafo) throws IOException {
         GrafoData data = new GrafoData();
-        data.paradas = new ArrayList<>(grafo.getParadas()); //copiar archivo
+        data.paradas = new ArrayList<>(grafo.getParadas());
         data.rutas = grafo.getTodasLasRutas();
 
-        try(Writer writer = new FileWriter(ruta)) {
+        try (Writer writer = new FileWriter(ruta)) {
             gson.toJson(data, writer);
         }
     }
 
-    public static Grafo cargar() throws IOException{
-        try(Reader reader = new FileReader(ruta)){
+    public static Grafo cargar() throws IOException {
+        File file = new File(ruta);
+        if (!file.exists()) {
+            // Si no existe el archivo, devolvemos un grafo vacío
+            return new Grafo();
+        }
+
+        try (Reader reader = new FileReader(file)) {
             GrafoData data = gson.fromJson(reader, GrafoData.class);
 
+            // Si el JSON está vacío o mal formado, devolvemos un grafo nuevo
             if (data == null || data.paradas == null || data.rutas == null) {
-                System.out.println("grafo.json está vacío o no válido. Se crea grafo nuevo.");
                 return new Grafo();
             }
 
             Grafo grafo = new Grafo();
 
-            for(Parada p : data.paradas){
+            // Primero las paradas
+            for (Parada p : data.paradas) {
                 grafo.agregarParada(p);
             }
 
-            for(Ruta r : data.rutas){
+            // Luego las rutas
+            for (Ruta r : data.rutas) {
                 grafo.agregarRuta(r);
             }
+
             return grafo;
         }
     }
