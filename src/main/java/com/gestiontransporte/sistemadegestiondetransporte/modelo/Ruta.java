@@ -8,32 +8,32 @@ public class Ruta {
     private Parada destino;
     private double distancia;
     private double tiempo;
+    private double costo;
+    private String linea;
 
-
-    public Parada getOrigen() {
-        return origen;
-    }
-
-
-
-    public void setOrigen(Parada origen) {
+    public Ruta(Parada origen, Parada destino, double distancia, double tiempo, double costo, String linea) {
         this.origen = origen;
-    }
-
-    public Parada getDestino() {
-        return destino;
-    }
-
-    public void setDestino(Parada destino) {
         this.destino = destino;
-    }
-
-    public double getDistancia() {
-        return distancia;
-    }
-
-    public void setDistancia(double distancia) {
         this.distancia = distancia;
+        this.tiempo = tiempo;
+        this.costo = costo;
+        this.linea = linea;
+    }
+
+    public String getLinea() {
+        return linea;
+    }
+
+    public void setLinea(String linea) {
+        this.linea = linea;
+    }
+
+    public double getCosto() {
+        return costo;
+    }
+
+    public void setCosto(double costo) {
+        this.costo = costo;
     }
 
     public double getTiempo() {
@@ -44,14 +44,43 @@ public class Ruta {
         this.tiempo = tiempo;
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public double getDistancia() {
+        return distancia;
+    }
+
+    public void setDistancia(double distancia) {
+        this.distancia = distancia;
+    }
+
+    public Parada getDestino() {
+        return destino;
+    }
+
+    public void setDestino(Parada destino) {
+        this.destino = destino;
+    }
+
+    public Parada getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(Parada origen) {
+        this.origen = origen;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ruta ruta = (Ruta) o;
+        // Dos rutas son iguales si tienen mismo origen y destino
+        return Objects.equals(origen, ruta.origen)
+                && Objects.equals(destino, ruta.destino);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(origen, destino);
     }
 
     @Override
@@ -59,7 +88,10 @@ public class Ruta {
         return "Ruta{" +
                 "origen=" + origen +
                 ", destino=" + destino +
+                ", distancia=" + distancia +
+                ", tiempo=" + tiempo +
+                ", costo=" + costo +
+                ", linea='" + linea + '\'' +
                 '}';
     }
-
 }
