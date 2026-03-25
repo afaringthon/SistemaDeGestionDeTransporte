@@ -1,6 +1,5 @@
 package com.gestiontransporte.sistemadegestiondetransporte.modelo;
 
-import java.util.Map;
 import java.util.Objects;
 
 public class Ruta {
@@ -9,23 +8,23 @@ public class Ruta {
     private double distancia;
     private double tiempo;
     private double costo;
-    private String linea;
+    private String tipoDeVehiculo;
 
-    public Ruta(Parada origen, Parada destino, double distancia, double tiempo, double costo, String linea) {
+    public Ruta(Parada origen, Parada destino, double distancia, double tiempo, double costo, String tipoDeVehiculo) {
         this.origen = origen;
         this.destino = destino;
         this.distancia = distancia;
         this.tiempo = tiempo;
         this.costo = costo;
-        this.linea = linea;
+        this.tipoDeVehiculo = tipoDeVehiculo;
     }
 
-    public String getLinea() {
-        return linea;
+    public String getTipoDeVehiculo() {
+        return tipoDeVehiculo;
     }
 
-    public void setLinea(String linea) {
-        this.linea = linea;
+    public void setTipoDeVehiculo(String tipoDeVehiculo) {
+        this.tipoDeVehiculo = tipoDeVehiculo;
     }
 
     public double getCosto() {
@@ -91,7 +90,7 @@ public class Ruta {
                 ", distancia=" + distancia +
                 ", tiempo=" + tiempo +
                 ", costo=" + costo +
-                ", linea='" + linea + '\'' +
+                ", Tipo de Vehículo='" + tipoDeVehiculo + '\'' +
                 '}';
     }
 }
