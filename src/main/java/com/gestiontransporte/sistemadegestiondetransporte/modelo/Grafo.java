@@ -62,7 +62,11 @@ public class Grafo {
         Parada origen = ruta.getOrigen();
         Parada destino = ruta.getDestino();
 
-        if(origen == null || destino == null){
+        if(origen == null || destino == null || origen.equals(destino)){
+            return false;
+        }
+
+        if(ruta.getDistancia() <= 0 || ruta.getTiempo() <= 0 || ruta.getCosto() < 0 || (ruta.getTipoDeVehiculo() == null) || ruta.getTipoDeVehiculo().isBlank()){
             return false;
         }
 
@@ -104,19 +108,22 @@ public class Grafo {
 
         List<Ruta> viejasRutasOrigen = adyacencia.get(viejoOrigen);
 
+        //verifica que la ruta vieja exista
         if(!viejasRutasOrigen.contains(viejaRuta)){
             return false;
         }
 
         List<Ruta> nuevasRutasOrigen = adyacencia.get(nuevoOrigen);
 
+        //verifica que no exista mas de 1 misma ruta
         for(Ruta r : nuevasRutasOrigen){
-            if(r != viejaRuta && r.getDestino().equals(nuevoDestino)){
+            if (r != viejaRuta && r.getDestino().equals(nuevoDestino)) {
                 return false;
             }
         }
 
-        if(!viejoOrigen.equals(nuevoOrigen)){
+        //Si la ruta no sale de la misma parada de origen, la pone donde va
+        if( !viejoOrigen.equals(nuevoOrigen) ){
             viejasRutasOrigen.remove(viejaRuta);
             nuevasRutasOrigen.add(viejaRuta);
         }
@@ -130,6 +137,7 @@ public class Grafo {
 
         return true;
     }
+
     public boolean eliminarRuta(Ruta ruta){
 
         if(ruta == null){
