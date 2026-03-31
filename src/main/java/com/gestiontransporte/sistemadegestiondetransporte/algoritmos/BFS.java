@@ -49,6 +49,7 @@ public class BFS {
                 break;
             }
 
+
             //rutas que salen por este nodo
             List<Ruta> vecinos = adyacenciaPorID.get(dato);
 
