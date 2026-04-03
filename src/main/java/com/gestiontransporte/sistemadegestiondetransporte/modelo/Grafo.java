@@ -242,6 +242,27 @@ public class Grafo {
         return resultado;
     }
 
+    public Parada getParadaPorId(int id) {
+        for (Parada p : adyacencia.keySet()) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+
+    //Funcion para saber los vecinos, usada en BFS
+    //getOrDefault devuelve la lista de Rutas de una clave
+    public List<Ruta> getVecinosPorID(int id){
+
+        Parada parada = getParadaPorId(id);
+
+        if(parada == null) return new ArrayList<>();
+
+        return new ArrayList<>(adyacencia.getOrDefault(parada, new ArrayList<>()));
+
+    }
 
     public List<Parada> getParadas() {
         return new ArrayList<>(adyacencia.keySet());
