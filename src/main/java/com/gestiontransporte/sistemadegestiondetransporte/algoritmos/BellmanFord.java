@@ -65,24 +65,24 @@ public class BellmanFord {
                     anteriores.put(destinoActual, origenActual);
                 }
             }
+        }
 
-            // Hacemos otro bucle, si el camino mejora, hay un ciclo negativo
-            for(Ruta r : todasLasRutas){
-                int origenActual = r.getOrigen().getId();
-                int destinoActual = r.getDestino().getId();
-                double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
+        // Hacemos otro bucle, si el camino mejora, hay un ciclo negativo
+        for(Ruta r : todasLasRutas){
+            int origenActual = r.getOrigen().getId();
+            int destinoActual = r.getDestino().getId();
+            double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
 
-                if(costoCriterio.get(origenActual) == Double.POSITIVE_INFINITY){
-                    continue;
-                }
-
-                if(costoNuevo < costoCriterio.get(destinoActual)){
-                    // hay ciclo negativo, el resultado no es confiable
-                    return new ResultadoCamino(new ArrayList<>(), -1);
-                }
+            if(costoCriterio.get(origenActual) == Double.POSITIVE_INFINITY){
+                continue;
             }
 
+            if(costoNuevo < costoCriterio.get(destinoActual)){
+                // hay ciclo negativo, el resultado no es confiable
+                return new ResultadoCamino(new ArrayList<>(), -1);
+            }
         }
+
 
 
 
