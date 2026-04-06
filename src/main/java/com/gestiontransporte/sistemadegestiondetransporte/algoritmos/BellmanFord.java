@@ -4,10 +4,7 @@ import com.gestiontransporte.sistemadegestiondetransporte.modelo.Grafo;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Parada;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Ruta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BellmanFord {
 
@@ -71,22 +68,47 @@ public class BellmanFord {
         for(Ruta r : todasLasRutas){
             int origenActual = r.getOrigen().getId();
             int destinoActual = r.getDestino().getId();
+
+            // suma el costo de cada ruta, desde el origen
             double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
 
-            if(costoCriterio.get(origenActual) == Double.POSITIVE_INFINITY){
-                continue;
-            }
-
+            // no debe haber ningun camino mas caro que el costo que tiene llegar al destino
             if(costoNuevo < costoCriterio.get(destinoActual)){
                 // hay ciclo negativo, el resultado no es confiable
                 return new ResultadoCamino(new ArrayList<>(), -1);
             }
         }
 
+        double valorTotal = costoCriterio.get(idDestino);
+        List<Parada> camino = reconstruirCamino(grafo, anteriores, idDestino);
 
-
-
+        return new ResultadoCamino(camino, valorTotal);
     }
 
+    public List<Parada> reconstruirCamino(Grafo grafo, Map<Integer, Integer> anteriores, int idDestino){
 
+        // verifica que pueda llegar destino desde su anterior
+        if(anteriores.get(idDestino) == null){
+            return new ArrayList<>();
+        }
+
+        List<Parada> caminoOrdenado = new ArrayList<>();
+        Integer actual = idDestino;
+
+        while(actual != null){
+
+            // llego al actual y lo guardo
+            for(Parada p : grafo.getParadas()){
+                if(p.getId() == actual){
+                    caminoOrdenado.add(p);
+                    break;
+                }
+            }
+            actual = anteriores.get(actual);
+        }
+
+        Collections.reverse(caminoOrdenado);
+
+        return caminoOrdenado;
+    }
 }

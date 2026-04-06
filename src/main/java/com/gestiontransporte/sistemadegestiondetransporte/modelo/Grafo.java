@@ -66,7 +66,7 @@ public class Grafo {
             return false;
         }
 
-        if(ruta.getDistancia() <= 0 || ruta.getTiempo() <= 0 || ruta.getCosto() < 0 || (ruta.getTipoDeVehiculo() == null) || ruta.getTipoDeVehiculo().isBlank()){
+        if(ruta.getDistancia() <= 0 || ruta.getTiempo() <= 0 || (ruta.getTipoDeVehiculo() == null) || ruta.getTipoDeVehiculo().isBlank()){
             return false;
         }
 
