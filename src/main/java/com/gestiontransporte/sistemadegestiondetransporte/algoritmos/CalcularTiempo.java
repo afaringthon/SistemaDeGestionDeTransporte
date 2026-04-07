@@ -6,18 +6,18 @@ import java.time.LocalTime;
 
 public class CalcularTiempo {
 
-    // Factores tiempo normal
-    private static final double FACTOR_CARRO_NORMAL = 1.0;
-    private static final double FACTOR_MOTO_NORMAL = 0.6;
-    private static final double FACTOR_TRANSPORTE_NORMAL = 1.3;
-    private static final double FACTOR_PIE_NORMAL = 3.0;
+    // Tiempo normal
+    private static final double CARRO_NORMAL = 1.0;
+    private static final double MOTO_NORMAL = 0.6;
+    private static final double TRANSPORTE_NORMAL = 1.3;
+    private static final double PIE_NORMAL = 3.0;
 
-    // Factores hora pico
-    private static final double FACTOR_CARRO_PICO = 1.5;
-    private static final double FACTOR_MOTO_PICO = 1.2;
-    private static final double FACTOR_TRANSPORTE_PICO = 1.7;
+    // Hora pico
+    private static final double CARRO_PICO = 1.5;
+    private static final double MOTO_PICO = 1.2;
+    private static final double TRANSPORTE_PICO = 1.7;
 
-    // static para no tener que crear un objeto nuevo
+    // static para que sea constante
     // final porque nos aseguramos de que no van a cambiar durante el programa
 
     // Verifica si la hora actual es hora pico
@@ -49,10 +49,10 @@ public class CalcularTiempo {
 
             // si el caso es un vehiculo de estos, pregunta si es la horra pico
             // si es, devuelve el atributo con el valor que le dimos, y si no, con el normal
-            case "carro" -> pico ? FACTOR_CARRO_PICO : FACTOR_CARRO_NORMAL;
-            case "moto" -> pico ? FACTOR_MOTO_PICO : FACTOR_MOTO_NORMAL;
-            case "transporte publico" -> pico ? FACTOR_TRANSPORTE_PICO : FACTOR_TRANSPORTE_NORMAL;
-            case "a pie" -> FACTOR_PIE_NORMAL;
+            case "carro" -> pico ? CARRO_PICO : CARRO_NORMAL;
+            case "moto" -> pico ? MOTO_PICO : MOTO_NORMAL;
+            case "transporte publico" -> pico ? TRANSPORTE_PICO : TRANSPORTE_NORMAL;
+            case "a pie" -> PIE_NORMAL;
             // si se ingresa un tipo de vehiculo desconocido, lo dejamos en 1
 
             default -> 1.0;

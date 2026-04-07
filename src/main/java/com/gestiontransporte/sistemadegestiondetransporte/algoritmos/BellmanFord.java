@@ -36,8 +36,6 @@ public class BellmanFord {
             anteriores.put(p.getId(), null);
         }
 
-        // Bellman trabaja con las rutas, y siempre son paradas - 1
-        // Parada - 1 para garantizar explorar todos las rutas
         int rep = grafo.getParadas().size() - 1;
 
         List<Ruta> todasLasRutas = grafo.getTodasLasRutas();
@@ -52,8 +50,10 @@ public class BellmanFord {
                 int destinoActual = r.getDestino().getId();
                 double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
 
+                // si no ha sido descubierto, que lo salte
                 if(costoCriterio.get(origenActual) == Double.POSITIVE_INFINITY){
                     continue;
+
                 }else if(costoNuevo < costoCriterio.get(destinoActual)){
 
                     // actualizo el mejor costo para llegar a destino
@@ -74,7 +74,6 @@ public class BellmanFord {
 
             // no debe haber ningun camino mas caro que el costo que tiene llegar al destino
             if(costoNuevo < costoCriterio.get(destinoActual)){
-                // hay ciclo negativo, el resultado no es confiable
                 return new ResultadoCamino(new ArrayList<>(), -1);
             }
         }
@@ -97,13 +96,7 @@ public class BellmanFord {
 
         while(actual != null){
 
-            // llego al actual y lo guardo
-            for(Parada p : grafo.getParadas()){
-                if(p.getId() == actual){
-                    caminoOrdenado.add(p);
-                    break;
-                }
-            }
+            caminoOrdenado.add(grafo.getParadaPorId(actual));
             actual = anteriores.get(actual);
         }
 
