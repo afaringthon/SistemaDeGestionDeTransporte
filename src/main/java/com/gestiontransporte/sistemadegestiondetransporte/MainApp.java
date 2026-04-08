@@ -90,7 +90,7 @@ public class MainApp extends Application {
                     System.out.println("El nombre no puede estar vacío");
                     return;
                 }
-                Parada nueva = new Parada(id, nombre);
+                Parada nueva = new Parada(nombre);
                 grafo.agregarParada(nueva);
                 actualizarCombosParadas();
                 comboEliminarParada.getItems().setAll(grafo.getParadas());
@@ -258,22 +258,6 @@ public class MainApp extends Application {
         stage.show();
     }
 
-
-    private void crearRutaDoble(Parada o, Parada d, double dist, double tiem) {
-        Ruta ida = new Ruta();
-        ida.setOrigen(o);
-        ida.setDestino(d);
-        ida.setDistancia(dist);
-        ida.setTiempo(tiem);
-        grafo.agregarRuta(ida);
-
-        Ruta vuelta = new Ruta();
-        vuelta.setOrigen(d);
-        vuelta.setDestino(o);
-        vuelta.setDistancia(dist);
-        vuelta.setTiempo(tiem);
-        grafo.agregarRuta(vuelta);
-    }
 
     // Actualiza todos los ComboBox de paradas
     private void actualizarCombosParadas() {

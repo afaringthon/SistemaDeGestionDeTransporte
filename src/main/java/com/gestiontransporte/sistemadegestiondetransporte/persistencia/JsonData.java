@@ -45,7 +45,7 @@ public class JsonData {
         try (Reader reader = new FileReader(file)) {
             GrafoData data = gson.fromJson(reader, GrafoData.class);
 
-            // Si el JSON está vacío o mal formado, devolvemos un grafo nuevo
+            // Si el JSON está vacío o mal formado, devolvemos un grafo nuevo vacio
             if (data == null || data.paradas == null || data.rutas == null) {
                 return new Grafo();
             }
