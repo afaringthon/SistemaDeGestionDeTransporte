@@ -204,6 +204,36 @@ public class MainApp extends Application {
         });
     }
 
+    public void highlightRutas(List<Parada> camino) {
+        if (currentPanel == null) return;
+        Platform.runLater(() -> {
+            try {
+                // limpiar colores anteriores
+                Set<Node> edges = currentPanel.lookupAll(".edge, .edge-path");
+                for (Node n : edges) {
+                    n.setStyle("");
+                }
+
+                if (camino == null || camino.size() < 2) return;
+
+                // colorear aristas del camino
+                for (int i = 0; i < camino.size() - 1; i++) {
+                    String origenLabel = camino.get(i).toString();
+                    String destinoLabel = camino.get(i + 1).toString();
+
+                    for (Node n : edges) {
+                        String found = findLabelTextRecursive(n);
+                        if (found != null && (found.contains(origenLabel) || found.contains(destinoLabel))) {
+                            n.setStyle("-fx-stroke: #2131df; -fx-stroke-width: 3;");
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
     private String findLabelTextRecursive(Node n) {
         if (n == null) return null;
         if (n instanceof Labeled) {
