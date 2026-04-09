@@ -55,11 +55,17 @@ public class MainController {
 	@FXML private Button btnEditarRuta;
 	@FXML private Button btnRemoverRuta;
 
-	// Control for calcular ruta
 	@FXML private ComboBox<Parada> comboCalcOrigen;
 	@FXML private ComboBox<Parada> comboCalcDestino;
-	@FXML private ToggleGroup vehiculo;
-	@FXML private Button btnCalcularRuta;
+	@FXML private ComboBox<String> comboCriterio;
+	@FXML private ComboBox<String> comboAlgoritmo;
+	@FXML private ComboBox<String> comboVehiculo;
+	@FXML private Label labelRutaPrincipal;
+	@FXML private Label labelValorPrincipal;
+	@FXML private Label labelRutaAlternativa;
+	@FXML private Label labelValorAlternativo;
+	@FXML private Label labelParadaSeleccionada;
+	@FXML private Label labelRutaSeleccionada;
 
 	// referencias que MainApp seteará
 	private Grafo grafo;
@@ -130,6 +136,11 @@ public class MainController {
 			if (spinnerCosto != null && spinnerCosto.getValueFactory() == null) {
 				spinnerCosto.setValueFactory(new javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 100000.0, 0.0, 0.5));
 			}
+
+			if (comboCriterio != null) comboCriterio.getItems().addAll("TIEMPO", "DISTANCIA", "COSTO");
+			if (comboAlgoritmo != null) comboAlgoritmo.getItems().addAll("DIJKSTRA", "BELLMAN-FORD", "BFS", "FLOYD");
+			if (comboVehiculo != null) comboVehiculo.getItems().addAll("Carro", "Moto", "A Pie");
+
 		} catch (Exception ignore) {
 			// Si algún control no está presente en la vista preview, no hacemos nada
 		}
@@ -284,6 +295,16 @@ public class MainController {
 		// Aquí puedes disparar la lógica de cálculo (Dijkstra, etc.) usando mainApp o grafo
 		showInfo("Calcular ruta: función delegada a MainApp");
 		if (mainApp != null) mainApp.redraw();
+	}
+
+	@FXML
+	private void onBuscarRuta(ActionEvent event) {
+		// aqui ira la logica de calcular ruta
+	}
+
+	@FXML
+	private void onVerAlternativa(ActionEvent event) {
+		// aqui ira la logica de ruta alternativa
 	}
 
 }

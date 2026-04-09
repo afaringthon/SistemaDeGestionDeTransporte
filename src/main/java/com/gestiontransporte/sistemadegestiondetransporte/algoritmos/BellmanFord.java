@@ -13,7 +13,7 @@ public class BellmanFord {
         return switch (criterio) {
             case TIEMPO -> CalcularTiempo.calcular(r, tipoDeVehiculo);
             case DISTANCIA -> r.getDistancia();
-            case COSTO -> r.getCosto();
+            case COSTO -> r.getCosto(); // poner que si es a pie, cuesta 0
         };
     }
 
