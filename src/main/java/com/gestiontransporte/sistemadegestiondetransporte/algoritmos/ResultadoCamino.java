@@ -23,12 +23,6 @@ public class ResultadoCamino {
         return valorTotal;
     }
 
-    public double getValorTotalConDescuento(Criterio criterio) {
-        if(criterio == Criterio.COSTO){
-            return valorTotal * CalcularDescuento.esDescuento();
-        }
-        return valorTotal;
-    }
 
     // Para buscar rutas alternativas
     public Ruta getRutaABloquear(Grafo grafo){

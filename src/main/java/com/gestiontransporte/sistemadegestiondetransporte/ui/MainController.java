@@ -422,9 +422,9 @@ public class MainController {
 			camino.append(paradas.get(i).getNombre());
 			if (i < paradas.size() - 1) camino.append(" -> ");
 		}
-		double valor = criterio == Criterio.COSTO
-				? resultado.getValorTotalConDescuento(criterio)
-				: resultado.getValorTotal();
+
+		double valor = resultado.getValorTotal();
+
 		String unidad = switch (criterio) {
 			case TIEMPO -> " min";
 			case DISTANCIA -> " km";
