@@ -3,22 +3,15 @@ package com.gestiontransporte.sistemadegestiondetransporte.ui;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import com.gestiontransporte.sistemadegestiondetransporte.MainApp;
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.BFS;
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.BellmanFord;
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.Criterio;
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.Dijkstra;
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.ResultadoCamino;
+import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.*;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Grafo;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Parada;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Ruta;
@@ -29,28 +22,8 @@ public class MainController {
 
 	@FXML public AnchorPane graphContainer;
 	@FXML public AnchorPane graphContainer2;
-	@FXML public ToggleGroup toggleCriterio;
 	@FXML public Label statusLabel;
 
-	// Controls for Paradas
-	@FXML private TextField txtParadaNombre;
-	@FXML private Button btnAgregarParada;
-	@FXML private Button btnRemoverParada;
-	@FXML private Button btnModificarParada;
-
-	// Controls for Rutas
-	@FXML private ComboBox<Parada> comboRutaOrigen;
-	@FXML private ComboBox<Parada> comboRutaDestino;
-	@FXML private ComboBox<Ruta> comboRutas;
-	@FXML private Spinner<Double> spinnerDistancia;
-	@FXML private Spinner<Double> spinnerTiempo;
-	@FXML private Spinner<Double> spinnerCosto;
-	@FXML private TextField txtLinea;
-	@FXML private Button btnAgregarRuta;
-	@FXML private Button btnEditarRuta;
-	@FXML private Button btnRemoverRuta;
-
-	// Controls for calcular ruta
 	@FXML private ComboBox<Parada> comboCalcOrigen;
 	@FXML private ComboBox<Parada> comboCalcDestino;
 	@FXML private ComboBox<String> comboCriterio;
@@ -63,10 +36,8 @@ public class MainController {
 	@FXML private Label labelParadaSeleccionada;
 	@FXML private Label labelRutaSeleccionada;
 
-	// parada y ruta seleccionadas al hacer click
 	private Parada paradaSeleccionada;
 	private Ruta rutaSeleccionada;
-
 	private Grafo grafo;
 	private MainApp mainApp;
 
@@ -87,20 +58,16 @@ public class MainController {
 		if (statusLabel != null) statusLabel.setText(text);
 	}
 
-	// parada seleccionada al hacer click en el grafo
 	public void setParadaSeleccionada(Parada p) {
 		this.paradaSeleccionada = p;
-		if (labelParadaSeleccionada != null) {
+		if (labelParadaSeleccionada != null)
 			labelParadaSeleccionada.setText(p != null ? p.getNombre() : "-");
-		}
 	}
 
-	// ruta seleccionada al hacer click en el grafo
 	public void setRutaSeleccionada(Ruta r) {
 		this.rutaSeleccionada = r;
-		if (labelRutaSeleccionada != null) {
+		if (labelRutaSeleccionada != null)
 			labelRutaSeleccionada.setText(r != null ? r.getOrigen().getNombre() + " -> " + r.getDestino().getNombre() : "-");
-		}
 	}
 
 	private void showError(String message) {
@@ -110,6 +77,7 @@ public class MainController {
 			alert.setTitle("Error");
 			alert.setHeaderText(null);
 			alert.setContentText(message);
+			alert.initModality(Modality.APPLICATION_MODAL);
 			alert.showAndWait();
 		});
 	}
@@ -121,6 +89,7 @@ public class MainController {
 			alert.setTitle("Información");
 			alert.setHeaderText(null);
 			alert.setContentText(message);
+			alert.initModality(Modality.APPLICATION_MODAL);
 			alert.showAndWait();
 		});
 	}
@@ -128,15 +97,6 @@ public class MainController {
 	@FXML
 	private void initialize() {
 		try {
-			if (spinnerDistancia != null && spinnerDistancia.getValueFactory() == null) {
-				spinnerDistancia.setValueFactory(new javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 10000.0, 1.0, 0.1));
-			}
-			if (spinnerTiempo != null && spinnerTiempo.getValueFactory() == null) {
-				spinnerTiempo.setValueFactory(new javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory(0.1, 10000.0, 1.0, 0.1));
-			}
-			if (spinnerCosto != null && spinnerCosto.getValueFactory() == null) {
-				spinnerCosto.setValueFactory(new javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 100000.0, 0.0, 0.5));
-			}
 			if (comboCriterio != null) comboCriterio.getItems().addAll("TIEMPO", "DISTANCIA", "COSTO");
 			if (comboAlgoritmo != null) comboAlgoritmo.getItems().addAll("DIJKSTRA", "BELLMAN-FORD", "BFS", "FLOYD");
 			if (comboVehiculo != null) comboVehiculo.getItems().addAll("Carro", "Moto", "A Pie");
@@ -145,109 +105,306 @@ public class MainController {
 
 	public void actualizarCombosParadas() {
 		if (grafo == null) return;
-		if (comboRutaOrigen != null) comboRutaOrigen.getItems().setAll(grafo.getParadas());
-		if (comboRutaDestino != null) comboRutaDestino.getItems().setAll(grafo.getParadas());
-		if (comboRutas != null) comboRutas.getItems().setAll(grafo.getTodasLasRutas());
 		if (comboCalcOrigen != null) comboCalcOrigen.getItems().setAll(grafo.getParadas());
 		if (comboCalcDestino != null) comboCalcDestino.getItems().setAll(grafo.getParadas());
 	}
 
-	@FXML
-	private void onAgregarParada(ActionEvent event) {
-		if (grafo == null) { showError("Grafo no inicializado"); return; }
-		String nombre = txtParadaNombre != null ? txtParadaNombre.getText() : null;
-		if (nombre == null || nombre.trim().isEmpty()) { showError("Ingrese un nombre válido para la parada"); return; }
-		Parada p = new Parada(nombre.trim());
-		boolean ok = grafo.agregarParada(p);
-		if (ok) {
-			showInfo("Parada agregada: " + p.getNombre());
-			actualizarCombosParadas();
-			if (mainApp != null) mainApp.smartAddParada(p);
-		} else {
-			showError("Ya existe una parada con el nombre: " + nombre);
-		}
+	// ==================== POPUPS ====================
+
+	private Stage crearPopup(String titulo, int ancho, int alto) {
+		Stage popup = new Stage();
+		popup.setTitle(titulo);
+		popup.initModality(Modality.APPLICATION_MODAL);
+		popup.setResizable(false);
+		return popup;
 	}
 
 	@FXML
-	private void onRemoverParada(ActionEvent event) {
-		if (grafo == null) { showError("Grafo no inicializado"); return; }
+	private void onAgregarParada(ActionEvent event) {
+		Stage popup = crearPopup("Agregar Parada", 300, 150);
 
-		// usa la parada seleccionada al hacer click
-		if (paradaSeleccionada == null) {
-			showError("Selecciona una parada en el grafo primero");
-			return;
-		}
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
 
-		boolean ok = grafo.eliminarParada(paradaSeleccionada);
-		if (ok) {
-			showInfo("Parada eliminada: " + paradaSeleccionada.getNombre());
-			paradaSeleccionada = null;
-			if (labelParadaSeleccionada != null) labelParadaSeleccionada.setText("-");
-			actualizarCombosParadas();
-			if (mainApp != null) mainApp.redraw();
-		} else {
-			showError("No se pudo eliminar la parada");
-		}
+		Label label = new Label("Nombre de la parada:");
+		TextField txtNombre = new TextField();
+		txtNombre.setPromptText("Nombre");
+
+		Button btnConfirmar = new Button("Agregar");
+		btnConfirmar.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			String nombre = txtNombre.getText().trim();
+			if (nombre.isEmpty()) {
+				showError("Ingrese un nombre válido");
+				return;
+			}
+			Parada p = new Parada(nombre);
+			boolean ok = grafo.agregarParada(p);
+			if (ok) {
+				showInfo("Parada agregada: " + p.getNombre());
+				actualizarCombosParadas();
+				if (mainApp != null) mainApp.smartAddParada(p);
+				popup.close();
+			} else {
+				showError("Ya existe una parada con el nombre: " + nombre);
+			}
+		});
+
+		layout.getChildren().addAll(label, txtNombre, btnConfirmar);
+		popup.setScene(new Scene(layout, 300, 150));
+		popup.showAndWait();
 	}
 
 	@FXML
 	private void onModificarParada(ActionEvent event) {
-		showInfo("Función modificar parada no implementada");
+		Stage popup = crearPopup("Modificar Parada", 300, 200);
+
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
+
+		Label label1 = new Label("Selecciona la parada:");
+		ComboBox<Parada> combo = new ComboBox<>();
+		combo.getItems().setAll(grafo.getParadas());
+		combo.setMaxWidth(Double.MAX_VALUE);
+
+		Label label2 = new Label("Nuevo nombre:");
+		TextField txtNombre = new TextField();
+		txtNombre.setPromptText("Nuevo nombre");
+
+		Button btnConfirmar = new Button("Modificar");
+		btnConfirmar.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			Parada seleccionada = combo.getValue();
+			String nuevoNombre = txtNombre.getText().trim();
+			if (seleccionada == null) { showError("Selecciona una parada"); return; }
+			if (nuevoNombre.isEmpty()) { showError("Ingrese un nombre válido"); return; }
+
+			boolean ok = grafo.modificarParada(seleccionada.getId(), new Parada(nuevoNombre));
+			if (ok) {
+				showInfo("Parada modificada a: " + nuevoNombre);
+				actualizarCombosParadas();
+				if (mainApp != null) mainApp.redraw();
+				popup.close();
+			} else {
+				showError("No se pudo modificar la parada");
+			}
+		});
+
+		layout.getChildren().addAll(label1, combo, label2, txtNombre, btnConfirmar);
+		popup.setScene(new Scene(layout, 300, 220));
+		popup.showAndWait();
+	}
+
+	@FXML
+	private void onRemoverParada(ActionEvent event) {
+		Stage popup = crearPopup("Eliminar Parada", 300, 150);
+
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
+
+		Label label = new Label("Selecciona la parada a eliminar:");
+		ComboBox<Parada> combo = new ComboBox<>();
+		combo.getItems().setAll(grafo.getParadas());
+		combo.setMaxWidth(Double.MAX_VALUE);
+
+		Button btnConfirmar = new Button("Eliminar");
+		btnConfirmar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			Parada seleccionada = combo.getValue();
+			if (seleccionada == null) { showError("Selecciona una parada"); return; }
+			boolean ok = grafo.eliminarParada(seleccionada);
+			if (ok) {
+				showInfo("Parada eliminada: " + seleccionada.getNombre());
+				actualizarCombosParadas();
+				if (mainApp != null) mainApp.redraw();
+				popup.close();
+			} else {
+				showError("No se pudo eliminar la parada");
+			}
+		});
+
+		layout.getChildren().addAll(label, combo, btnConfirmar);
+		popup.setScene(new Scene(layout, 300, 160));
+		popup.showAndWait();
 	}
 
 	@FXML
 	private void onAgregarRuta(ActionEvent event) {
-		if (grafo == null) { showError("Grafo no inicializado"); return; }
+		Stage popup = crearPopup("Agregar Ruta", 320, 320);
 
-		Parada o = comboRutaOrigen != null ? comboRutaOrigen.getValue() : null;
-		Parada d = comboRutaDestino != null ? comboRutaDestino.getValue() : null;
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
 
-		if (o == null || d == null) { showError("Selecciona origen y destino"); return; }
-		if (o.equals(d)) { showError("El origen y destino no pueden ser la misma parada"); return; }
+		ComboBox<Parada> comboOrigen = new ComboBox<>();
+		comboOrigen.getItems().setAll(grafo.getParadas());
+		comboOrigen.setPromptText("Origen");
+		comboOrigen.setMaxWidth(Double.MAX_VALUE);
 
-		double dist = spinnerDistancia != null ? spinnerDistancia.getValue() : 1.0;
-		double tiem = spinnerTiempo != null ? spinnerTiempo.getValue() : 1.0;
-		double costo = spinnerCosto != null ? spinnerCosto.getValue() : 0.0;
+		ComboBox<Parada> comboDestino = new ComboBox<>();
+		comboDestino.getItems().setAll(grafo.getParadas());
+		comboDestino.setPromptText("Destino");
+		comboDestino.setMaxWidth(Double.MAX_VALUE);
 
-		if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return; }
-		if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+		TextField txtDistancia = new TextField();
+		txtDistancia.setPromptText("Distancia (km)");
 
-		Ruta nuevaRuta = new Ruta(o, d, dist, tiem, costo);
-		boolean ok = grafo.agregarRuta(nuevaRuta);
-		if (ok) {
-			showInfo("Ruta agregada entre " + o.getNombre() + " y " + d.getNombre());
-			actualizarCombosParadas();
-			if (mainApp != null) mainApp.smartAddRuta(o, d);
-		} else {
-			showError("Ya existe una ruta entre " + o.getNombre() + " y " + d.getNombre());
-		}
+		TextField txtTiempo = new TextField();
+		txtTiempo.setPromptText("Tiempo (min)");
+
+		TextField txtCosto = new TextField();
+		txtCosto.setPromptText("Costo");
+
+		Button btnConfirmar = new Button("Agregar");
+		btnConfirmar.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			Parada o = comboOrigen.getValue();
+			Parada d = comboDestino.getValue();
+			if (o == null || d == null) { showError("Selecciona origen y destino"); return; }
+			if (o.equals(d)) { showError("Origen y destino no pueden ser iguales"); return; }
+
+			try {
+				double dist = Double.parseDouble(txtDistancia.getText().trim());
+				double tiem = Double.parseDouble(txtTiempo.getText().trim());
+				double costo = Double.parseDouble(txtCosto.getText().trim());
+
+				if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return; }
+				if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+
+				Ruta nuevaRuta = new Ruta(o, d, dist, tiem, costo);
+				boolean ok = grafo.agregarRuta(nuevaRuta);
+				if (ok) {
+					showInfo("Ruta agregada entre " + o.getNombre() + " y " + d.getNombre());
+					actualizarCombosParadas();
+					if (mainApp != null) mainApp.smartAddRuta(o, d);
+					popup.close();
+				} else {
+					showError("Ya existe una ruta entre " + o.getNombre() + " y " + d.getNombre());
+				}
+			} catch (NumberFormatException ex) {
+				showError("Ingresa valores numéricos válidos");
+			}
+		});
+
+		layout.getChildren().addAll(
+				new Label("Origen:"), comboOrigen,
+				new Label("Destino:"), comboDestino,
+				new Label("Distancia:"), txtDistancia,
+				new Label("Tiempo:"), txtTiempo,
+				new Label("Costo:"), txtCosto,
+				btnConfirmar
+		);
+
+		popup.setScene(new Scene(layout, 320, 400));
+		popup.showAndWait();
 	}
 
 	@FXML
 	private void onEditarRuta(ActionEvent event) {
-		showInfo("Editar ruta no implementado");
+		Stage popup = crearPopup("Modificar Ruta", 320, 400);
+
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
+
+		Label label = new Label("Selecciona la ruta a modificar:");
+		ComboBox<Ruta> comboRutas = new ComboBox<>();
+		comboRutas.getItems().setAll(grafo.getTodasLasRutas());
+		comboRutas.setMaxWidth(Double.MAX_VALUE);
+
+		TextField txtDistancia = new TextField();
+		txtDistancia.setPromptText("Nueva distancia (km)");
+
+		TextField txtTiempo = new TextField();
+		txtTiempo.setPromptText("Nuevo tiempo (min)");
+
+		TextField txtCosto = new TextField();
+		txtCosto.setPromptText("Nuevo costo");
+
+		Button btnConfirmar = new Button("Modificar");
+		btnConfirmar.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			Ruta seleccionada = comboRutas.getValue();
+			if (seleccionada == null) { showError("Selecciona una ruta"); return; }
+
+			try {
+				double dist = Double.parseDouble(txtDistancia.getText().trim());
+				double tiem = Double.parseDouble(txtTiempo.getText().trim());
+				double costo = Double.parseDouble(txtCosto.getText().trim());
+
+				if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return; }
+				if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+
+				Ruta nuevaRuta = new Ruta(seleccionada.getOrigen(), seleccionada.getDestino(), dist, tiem, costo);
+				boolean ok = grafo.modificarRuta(seleccionada, nuevaRuta);
+				if (ok) {
+					showInfo("Ruta modificada correctamente");
+					actualizarCombosParadas();
+					if (mainApp != null) mainApp.redraw();
+					popup.close();
+				} else {
+					showError("No se pudo modificar la ruta");
+				}
+			} catch (NumberFormatException ex) {
+				showError("Ingresa valores numéricos válidos");
+			}
+		});
+
+		layout.getChildren().addAll(label, comboRutas,
+				new Label("Distancia:"), txtDistancia,
+				new Label("Tiempo:"), txtTiempo,
+				new Label("Costo:"), txtCosto,
+				btnConfirmar
+		);
+
+		popup.setScene(new Scene(layout, 320, 420));
+		popup.showAndWait();
 	}
 
 	@FXML
 	private void onRemoverRuta(ActionEvent event) {
-		if (grafo == null) { showError("Grafo no inicializado"); return; }
+		Stage popup = crearPopup("Eliminar Ruta", 300, 150);
 
-		if (rutaSeleccionada == null) {
-			showError("Selecciona una ruta en el grafo primero");
-			return;
-		}
+		VBox layout = new VBox(10);
+		layout.setPadding(new Insets(20));
 
-		boolean ok = grafo.eliminarRuta(rutaSeleccionada);
-		if (ok) {
-			showInfo("Ruta eliminada: " + rutaSeleccionada.getOrigen().getNombre() + " -> " + rutaSeleccionada.getDestino().getNombre());
-			rutaSeleccionada = null;
-			if (labelRutaSeleccionada != null) labelRutaSeleccionada.setText("-");
-			actualizarCombosParadas();
-			if (mainApp != null) mainApp.redraw();
-		} else {
-			showError("No se pudo eliminar la ruta");
-		}
+		Label label = new Label("Selecciona la ruta a eliminar:");
+		ComboBox<Ruta> comboRutas = new ComboBox<>();
+		comboRutas.getItems().setAll(grafo.getTodasLasRutas());
+		comboRutas.setMaxWidth(Double.MAX_VALUE);
+
+		Button btnConfirmar = new Button("Eliminar");
+		btnConfirmar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white;");
+		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
+		btnConfirmar.setOnAction(e -> {
+			Ruta seleccionada = comboRutas.getValue();
+			if (seleccionada == null) { showError("Selecciona una ruta"); return; }
+			boolean ok = grafo.eliminarRuta(seleccionada);
+			if (ok) {
+				showInfo("Ruta eliminada: " + seleccionada.getOrigen().getNombre() + " -> " + seleccionada.getDestino().getNombre());
+				actualizarCombosParadas();
+				if (mainApp != null) mainApp.redraw();
+				popup.close();
+			} else {
+				showError("No se pudo eliminar la ruta");
+			}
+		});
+
+		layout.getChildren().addAll(label, comboRutas, btnConfirmar);
+		popup.setScene(new Scene(layout, 300, 160));
+		popup.showAndWait();
 	}
+
+	// ==================== CALCULAR RUTA ====================
 
 	@FXML
 	private void onBuscarRuta(ActionEvent event) {
@@ -272,10 +429,7 @@ public class MainController {
 			return;
 		}
 
-		// mostrar ruta principal
 		mostrarResultado(resultado, criterio, true);
-
-		// highlight en el grafo
 		if (mainApp != null) mainApp.highlightParadas(resultado.getCamino());
 	}
 
@@ -294,15 +448,13 @@ public class MainController {
 		if (algoritmoStr == null) { showError("Selecciona un algoritmo"); return; }
 
 		Criterio criterio = Criterio.valueOf(criterioStr);
-
-		// calcular ruta principal
 		ResultadoCamino principal = calcularRuta(origen, destino, criterio, algoritmoStr, vehiculo);
+
 		if (principal == null || principal.getCamino().isEmpty()) {
 			showError("No se encontró ruta principal");
 			return;
 		}
 
-		// bloquear primera ruta del camino principal
 		Ruta rutaABloquear = principal.getRutaABloquear(grafo);
 		if (rutaABloquear == null) {
 			showError("No hay ruta alternativa disponible");
@@ -318,7 +470,6 @@ public class MainController {
 			return;
 		}
 
-		// mostrar ambas rutas
 		mostrarResultado(principal, criterio, true);
 		mostrarResultado(alternativa, criterio, false);
 	}

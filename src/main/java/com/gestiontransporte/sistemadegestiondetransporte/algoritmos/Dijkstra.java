@@ -18,7 +18,7 @@ public class Dijkstra {
             this.anteriores = anteriores;
         }
 
-
+        // se necesita para el visual, se accede desde aqui
         public Map<Integer, Double> getDistancias() {
             return distancias;
         }
