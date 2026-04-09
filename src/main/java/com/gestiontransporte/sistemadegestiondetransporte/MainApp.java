@@ -1,350 +1,271 @@
 package com.gestiontransporte.sistemadegestiondetransporte;
 
-import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.Dijkstra;
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
+import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Labeled;
+import javafx.scene.text.Text;
+import javafx.scene.shape.Shape;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Grafo;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Parada;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Ruta;
+import com.gestiontransporte.sistemadegestiondetransporte.ui.MainController;
 import com.gestiontransporte.sistemadegestiondetransporte.persistencia.JsonData;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
+import javafx.scene.layout.AnchorPane;
+// ...existing imports...
 import javafx.stage.Stage;
 
-import javax.imageio.IIOException;
-import java.io.IOException;
-import java.util.*;
+// ...existing code...
 
+/**
+ * Clean MainApp that uses SmartGraph 2.x API in a minimal, robust way.
+ * - Builds demo data if none present
+ * - Creates SmartGraphPanel with circular placement
+ * - Initializes SmartGraph only after the container has a valid size
+ */
 public class MainApp extends Application {
 
-    Grafo grafo = new Grafo();
-    private Pane graphPane;
-
-    // Combos globales
-    private ComboBox<Parada> comboOrigen;
-    private ComboBox<Parada> comboDestino;
-    private ComboBox<Parada> comboRutaOrigen;
-    private ComboBox<Parada> comboRutaDestino;
-    private ComboBox<Parada> comboEliminarParada;
+    private Grafo grafo = new Grafo();
+    private MainController controllerRef;
+    // keep a reference to the currently displayed SmartGraphPanel so we can highlight vertices
+    private SmartGraphPanel<Parada, Ruta> currentPanel = null;
 
     @Override
-    public void start(Stage stage) {
-        try{
+    public void start(Stage stage) throws Exception {
+        // load model using JsonData (persistence). If loading fails, fall back to an empty Grafo.
+        try {
             grafo = JsonData.cargar();
-        }catch (IOException e){
+            if (grafo == null) grafo = new Grafo();
+        } catch (Exception ex) {
+            ex.printStackTrace();
             grafo = new Grafo();
         }
 
-        graphPane = new Pane();
-        graphPane.setPrefSize(600, 400);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/gestiontransporte/sistemadegestiondetransporte/MainView.fxml"));
+        Parent root = loader.load();
+        controllerRef = loader.getController();
+        controllerRef.setGrafo(grafo);
+        controllerRef.setMainApp(this);
+        controllerRef.actualizarCombosParadas();
 
-        comboOrigen = new ComboBox<>();
-        comboDestino = new ComboBox<>();
-        comboOrigen.setPromptText("Origen");
-        comboDestino.setPromptText("Destino");
+        Scene scene = new Scene(root, 1000, 700);
+        try { String css = getClass().getResource("/com/gestiontransporte/sistemadegestiondetransporte/application.css").toExternalForm(); scene.getStylesheets().add(css); } catch (Exception ignored) {}
 
-        actualizarCombosParadas();
-
-        Button btnBuscarCamino = new Button("Camino más rápido (tiempo)");
-        btnBuscarCamino.setOnAction(e -> {
-            Parada origen = comboOrigen.getValue();
-            Parada destino = comboDestino.getValue();
-            if (origen == null || destino == null) {
-                System.out.println("Debes elegir origen y destino");
-                return;
-            }
-            Dijkstra.Resultado resultado = Dijkstra.calcular(grafo, origen.getId(), Dijkstra.Criterio.TIEMPO);
-            var path = resultado.reconstruirCamino(grafo, origen.getId(), destino.getId());
-
-            drawGraph(grafo, graphPane, path);
-            //var path es parecido a un List<Parada> path, pero por comodidad usamos path
-        });
-
-        HBox barraCamino = new HBox(10, comboOrigen, comboDestino, btnBuscarCamino);
-
-        // ====== Controles Paradas: agregar y eliminar ======
-        TextField txtIdParada = new TextField();
-        txtIdParada.setPromptText("ID parada");
-
-        TextField txtNombreParada = new TextField();
-        txtNombreParada.setPromptText("Nombre parada");
-
-        Button btnAgregarParada = new Button("Agregar Parada");
-        btnAgregarParada.setOnAction(e -> {
-            try {
-                int id = Integer.parseInt(txtIdParada.getText());
-                if(existeParadaConId(id)){
-                    System.out.println("ya hay una parada con ese ID");
-                    return;
-                }
-                String nombre = txtNombreParada.getText();
-                if (nombre.isEmpty()) {
-                    System.out.println("El nombre no puede estar vacío");
-                    return;
-                }
-                Parada nueva = new Parada(nombre);
-                grafo.agregarParada(nueva);
-                actualizarCombosParadas();
-                comboEliminarParada.getItems().setAll(grafo.getParadas());
-                drawGraph(grafo, graphPane, null);
-                txtIdParada.clear();
-                txtNombreParada.clear();
-            } catch (NumberFormatException ex) {
-                System.out.println("ID debe ser un numero");
-            }
-        });
-
-        comboEliminarParada = new ComboBox<>();
-        comboEliminarParada.setPromptText("Parada a eliminar");
-        comboEliminarParada.getItems().addAll(grafo.getParadas());
-
-        Button btnEliminarParada = new Button("Eliminar Parada");
-        btnEliminarParada.setOnAction(e -> {
-            Parada seleccionada = comboEliminarParada.getValue();
-            if (seleccionada == null) {
-                System.out.println("Elige una parada para eliminar");
-                return;
-            }
-
-            int idEliminar = seleccionada.getId();
-
-            //Construir nueva lista de paradas SIN la seleccionada
-            List<Parada> nuevasParadas = new ArrayList<>();
-            for (Parada p : grafo.getParadas()) {
-                if (p.getId() != idEliminar) {      // si no es la que quiero borrar, la conservo
-                    nuevasParadas.add(p);
-                }
-            }
-
-            // Construir nueva lista de rutas que no usen esa parada
-            List<Ruta> nuevasRutas = new ArrayList<>();
-            for (Ruta r : grafo.getTodasLasRutas()) {
-                boolean usaParada =
-                        r.getOrigen().getId() == idEliminar ||
-                                r.getDestino().getId() == idEliminar;
-
-                if (!usaParada) {
-                    nuevasRutas.add(r);
-                }
-            }
-
-            // Reconstruir el grafo con las nuevas listas
-            Grafo nuevo = new Grafo();
-            for (Parada p : nuevasParadas) {
-                nuevo.agregarParada(p);
-            }
-            for (Ruta r : nuevasRutas) {
-                nuevo.agregarRuta(r);
-            }
-            grafo = nuevo;
-
-            // Actualizar combos y dibujo
-            actualizarCombosParadas();
-            comboEliminarParada.getItems().setAll(grafo.getParadas());
-            drawGraph(grafo, graphPane, null);
-        });
-
-        VBox panelParadas = new VBox(5,
-                new Text("Paradas"),
-                txtIdParada, txtNombreParada, btnAgregarParada,
-                comboEliminarParada, btnEliminarParada
-        );
-
-        //
-        comboRutaOrigen = new ComboBox<>();
-        comboRutaDestino = new ComboBox<>();
-        comboRutaOrigen.setPromptText("Origen ruta");
-        comboRutaDestino.setPromptText("Destino ruta");
-        comboRutaOrigen.getItems().addAll(grafo.getParadas());
-        comboRutaDestino.getItems().addAll(grafo.getParadas());
-
-        TextField txtDistancia = new TextField();
-        txtDistancia.setPromptText("Distancia");
-        TextField txtTiempo = new TextField();
-        txtTiempo.setPromptText("Tiempo");
-
-        Button btnAgregarRuta = new Button("Agregar Ruta (ida y vuelta)");
-        btnAgregarRuta.setOnAction(e -> {
-            Parada o = comboRutaOrigen.getValue();
-            Parada d = comboRutaDestino.getValue();
-            if (o == null || d == null || o.equals(d)) {
-                System.out.println("Debes elegir origen y destino distintos para la ruta");
-                return;
-            }
-            try {
-                double dist = Double.parseDouble(txtDistancia.getText());
-                double tiem = Double.parseDouble(txtTiempo.getText());
-
-                // crear ruta ida y vuelta
-                crearRutaDoble(o, d, dist, tiem);
-
-                drawGraph(grafo, graphPane, null);
-                txtDistancia.clear();
-                txtTiempo.clear();
-            } catch (NumberFormatException ex) {
-                System.out.println("Distancia y tiempo deben ser números");
-            }
-        });
-
-        Button btnEliminarRuta = new Button("Eliminar Ruta (ida y vuelta)");
-        btnEliminarRuta.setOnAction(e -> {
-            Parada o = comboRutaOrigen.getValue();
-            Parada d = comboRutaDestino.getValue();
-            if (o == null || d == null || o.equals(d)) {
-                System.out.println("Debes elegir origen y destino para eliminar la ruta");
-                return;
-            }
-
-            List<Ruta> rutas = grafo.getTodasLasRutas();
-            List<Ruta> nuevasRutas = new ArrayList<>();
-
-
-            //No agregar rutas o->d y d->o
-            for (Ruta r : rutas) {
-                boolean mismaPareja =
-                        (r.getOrigen().getId() == o.getId() && r.getDestino().getId() == d.getId()) ||
-                                (r.getOrigen().getId() == d.getId() && r.getDestino().getId() == o.getId());
-
-                if (!mismaPareja) {
-                    nuevasRutas.add(r);
-                }
-            }
-
-            // Reconstruir grafo con las mismas paradas
-            Grafo nuevo = new Grafo();
-            for (Parada p : grafo.getParadas()) {
-                nuevo.agregarParada(p);
-            }
-            for (Ruta r : nuevasRutas) {
-                nuevo.agregarRuta(r);
-            }
-            grafo = nuevo;
-
-            drawGraph(grafo, graphPane, null);
-        });
-
-        VBox panelRutas = new VBox(5,
-                new Text("Rutas"),
-                comboRutaOrigen, comboRutaDestino,
-                txtDistancia, txtTiempo,
-                btnAgregarRuta,
-                btnEliminarRuta
-        );
-
-        HBox panelControl = new HBox(20, panelParadas, panelRutas);
-        VBox root = new VBox(10, barraCamino, panelControl, graphPane);
-
-        drawGraph(grafo, graphPane, null);
-
-        Scene scene = new Scene(root, 900, 600);
-        stage.setTitle("Gestión y Visualización de Grafo");
         stage.setScene(scene);
-        stage.setOnCloseRequest(event -> {
-            try {
-                JsonData.guardar(grafo);
-                System.out.println("Grafo guardado al cerrar la aplicación.");
-            } catch (IOException e) {
-                System.out.println("Error al guardar grafo al cerrar: " + e.getMessage());
-            }
-        });
+        stage.setTitle("Sistema de Gestion - Grafo");
+        stage.setMaximized(true);
         stage.show();
+
+        // draw after shown
+        Platform.runLater(this::drawGraph);
     }
 
+    public void redraw() { Platform.runLater(this::drawGraph); }
 
-    // Actualiza todos los ComboBox de paradas
-    private void actualizarCombosParadas() {
-        if (comboOrigen != null) {
-            comboOrigen.getItems().setAll(grafo.getParadas());
-        }
-        if (comboDestino != null) {
-            comboDestino.getItems().setAll(grafo.getParadas());
-        }
-        if (comboRutaOrigen != null) {
-            comboRutaOrigen.getItems().setAll(grafo.getParadas());
-        }
-        if (comboRutaDestino != null) {
-            comboRutaDestino.getItems().setAll(grafo.getParadas());
-        }
-    }
-    private boolean existeParadaConId(int id) {
-        for (Parada p : grafo.getParadas()) {
-            if (p.getId() == id) {
-                return true;
+    private void drawGraph() {
+        try {
+            AnchorPane container = controllerRef.getGraphContainer();
+            if (container == null) return;
+
+            // Use a directed graph implementation (DigraphEdgeList) containing Parada vertices and Ruta edges.
+            DigraphEdgeList<Parada, Ruta> sg = new DigraphEdgeList<>();
+            for (Parada p : grafo.getParadas()) {
+                sg.insertVertex(p);
             }
-        }
-        return false;
-    }
+            // add directed edges for each Ruta
+            for (Parada o : grafo.getParadas()) {
+                for (Ruta r : grafo.getRutasDesde(o)) {
+                    Parada d = r.getDestino();
+                    try { sg.insertEdge(o, d, r); } catch (Exception ignore) {}
+                }
+            }
 
-    private void drawGraph(Grafo grafo, Pane graphPane, List<Parada> shortestPath) {
-        graphPane.getChildren().clear();
+            SmartCircularSortedPlacementStrategy placement;
+            try {
+                Class<?> cls = SmartCircularSortedPlacementStrategy.class;
+                try {
+                    java.lang.reflect.Constructor<?> cons = cls.getConstructor(double.class);
+                    placement = (SmartCircularSortedPlacementStrategy) cons.newInstance(320.0);
+                } catch (NoSuchMethodException ns) {
+                    placement = new SmartCircularSortedPlacementStrategy();
+                    try {
+                        java.lang.reflect.Method m = cls.getMethod("setRadius", double.class);
+                        m.invoke(placement, 320.0);
+                    } catch (Exception ignored) {}
+                }
+            } catch (Exception ex) {
+                placement = new SmartCircularSortedPlacementStrategy();
+            }
+            // Create SmartGraphPanel directly from the directed graph
+            SmartGraphPanel<Parada, Ruta> panel = new SmartGraphPanel<>(sg, placement);
+            // keep reference for highlight operations
+            currentPanel = panel;
+            panel.getStyleClass().add("smartgraph-custom");
+            panel.setAutomaticLayout(true);
 
-        int n = grafo.getParadas().size();
-        double centerX = 300, centerY = 200, radius = 150;
-        Map<Integer, double[]> positions = new HashMap<>();
+            // make panel reference effectively final for use inside the listener
+            final SmartGraphPanel[] panelRef = new SmartGraphPanel[] { panel };
 
-        // Posicionar nodos en círculo
-        for (int i = 0; i < n; i++) {
-            double angle = 2 * Math.PI * i / n;
-            double x = centerX + Math.cos(angle) * radius;
-            double y = centerY + Math.sin(angle) * radius;
-            Parada p = grafo.getParadas().get(i);
-            positions.put(p.getId(), new double[]{x, y});
-        }
 
-        // Dibujar rutas y su peso
-        for (Ruta r : grafo.getTodasLasRutas()) {
-            int origenId = r.getOrigen().getId();
-            int destinoId = r.getDestino().getId();
-            double[] origPos = positions.get(origenId);
-            double[] destPos = positions.get(destinoId);
+            // attach panel to controller container (no custom overlay)
+            controllerRef.setGraphPane(panel);
 
-            Line edge = new Line(origPos[0], origPos[1], destPos[0], destPos[1]);
-            edge.setStrokeWidth(2);
-            edge.setStroke(Color.GRAY);
-            graphPane.getChildren().add(edge);
-
-            double midX = (origPos[0] + destPos[0]) / 2;
-            double midY = (origPos[1] + destPos[1]) / 2;
-            String weightLabel = r.getTiempo() + "";
-            Text edgeLabel = new Text(midX, midY, weightLabel);
-            edgeLabel.setFill(Color.DODGERBLUE);
-            graphPane.getChildren().add(edgeLabel);
-        }
-
-        // Dibujar nodos y resaltar
-        for (Parada p : grafo.getParadas()) {
-            double[] pos = positions.get(p.getId());
-
-            boolean inPath = false;
-            if (shortestPath != null) {
-                for (Parada sp : shortestPath) {
-                    if (sp.getId() == p.getId()) {
-                        inPath = true;
-                        break;
+            Runnable initTask = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        controllerRef.getGraphContainer().applyCss();
+                        controllerRef.getGraphContainer().layout();
+                        if (panelRef[0].getWidth() <= 0 || panelRef[0].getHeight() <= 0) { Platform.runLater(this); return; }
+                        panelRef[0].init();
+                        panelRef[0].update();
+                        panelRef[0].updateAndWait();
+                        // debug: print counts of visual nodes created by SmartGraph
+                        try {
+                            int verts = panelRef[0].lookupAll(".vertex").size() + panelRef[0].lookupAll(".vertex-visual").size();
+                            int edges = panelRef[0].lookupAll(".edge").size() + panelRef[0].lookupAll(".edge-path").size();
+                            System.out.println("[DEBUG] SmartGraph visuals: vertices=" + verts + ", edges=" + edges);
+                        } catch (Exception ignored) {}
+                        // nothing extra: SmartGraph handles edge rendering
+                    } catch (IllegalStateException ise) {
+                        Platform.runLater(this);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 }
+            };
+
+            if (container.getWidth() > 0 && container.getHeight() > 0) initTask.run();
+            else {
+                container.widthProperty().addListener((obs, o, n) -> { if (container.getWidth() > 0 && container.getHeight() > 0) Platform.runLater(initTask); });
+                container.heightProperty().addListener((obs, o, n) -> { if (container.getWidth() > 0 && container.getHeight() > 0) Platform.runLater(initTask); });
             }
 
-            Circle node = new Circle(pos[0], pos[1], 20);
-            node.setFill(inPath ? Color.ORANGE : Color.LIGHTBLUE);
-            graphPane.getChildren().add(node);
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
 
-            Text label = new Text(pos[0] - 10, pos[1] + 5, p.getNombre());
-            label.setFill(Color.BLACK);
-            graphPane.getChildren().add(label);
+    // helpers used by controller
+    public void smartAddParada(Parada p) { redraw(); }
+    public void smartRemoveParada(Parada p) { redraw(); }
+    public void smartAddRuta(Parada o, Parada d) { redraw(); }
+    public void smartRemoveRuta(Parada o, Parada d) { redraw(); }
+
+    /**
+     * Highlight the supplied Parada vertices in the current SmartGraphPanel.
+     * This is a simple implementation that matches vertex visuals by the displayed label text
+     * (Parada.toString()) and applies an inline style to make them visually distinct.
+     */
+    public void highlightParadas(List<Parada> paradas) {
+        if (currentPanel == null) return;
+        Platform.runLater(() -> {
+            try {
+                // clear previous highlights
+                try {
+                    Set<Node> all = currentPanel.lookupAll(".vertex, .vertex-visual");
+                    for (Node n : all) {
+                        n.getStyleClass().remove("highlighted-vertex");
+                        n.setStyle("");
+                        // also clear on child labeled/text nodes
+                        clearTextStyleRecursive(n);
+                        clearShapeStyleRecursive(n);
+                    }
+                } catch (Exception ignored) {}
+
+                if (paradas == null || paradas.isEmpty()) return;
+
+                Set<Node> candidates = currentPanel.lookupAll(".vertex, .vertex-visual");
+                for (Parada p : paradas) {
+                    String target = p.toString();
+                    for (Node n : candidates) {
+                        String found = findLabelTextRecursive(n);
+                        if (found != null && found.equals(target)) {
+                            // apply highlight styles
+                            try { n.getStyleClass().add("highlighted-vertex"); } catch (Exception ignored) {}
+                            try { n.setStyle("-fx-effect: dropshadow(gaussian, rgba(220,50,47,0.9), 10, 0.2, 0, 0);"); } catch (Exception ignored) {}
+                            // color inner text or shape if present
+                            applyTextStyleRecursive(n, "-fx-fill: #d62728; -fx-font-weight: bold;");
+                            applyShapeStyleRecursive(n, "-fx-stroke: #d62728; -fx-stroke-width: 2; -fx-fill: white;");
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    private String findLabelTextRecursive(Node n) {
+        if (n == null) return null;
+        if (n instanceof Labeled) {
+            return ((Labeled) n).getText();
         }
-
+        if (n instanceof Text) return ((Text) n).getText();
+        if (n instanceof Parent) {
+            for (Node c : ((Parent) n).getChildrenUnmodifiable()) {
+                String t = findLabelTextRecursive(c);
+                if (t != null) return t;
+            }
+        }
+        return null;
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    private void applyTextStyleRecursive(Node n, String style) {
+        if (n == null) return;
+        if (n instanceof Labeled) {
+            try { ((Labeled) n).setStyle(style); } catch (Exception ignored) {}
+        }
+        if (n instanceof Text) {
+            try { ((Text) n).setStyle(style); } catch (Exception ignored) {}
+        }
+        if (n instanceof Parent) {
+            for (Node c : ((Parent) n).getChildrenUnmodifiable()) applyTextStyleRecursive(c, style);
+        }
     }
+
+    private void applyShapeStyleRecursive(Node n, String style) {
+        if (n == null) return;
+        if (n instanceof Shape) {
+            try { ((Shape) n).setStyle(style); } catch (Exception ignored) {}
+        }
+        if (n instanceof Parent) {
+            for (Node c : ((Parent) n).getChildrenUnmodifiable()) applyShapeStyleRecursive(c, style);
+        }
+    }
+
+    private void clearTextStyleRecursive(Node n) {
+        if (n == null) return;
+        if (n instanceof Labeled) {
+            try { ((Labeled) n).setStyle(""); } catch (Exception ignored) {}
+        }
+        if (n instanceof Text) {
+            try { ((Text) n).setStyle(""); } catch (Exception ignored) {}
+        }
+        if (n instanceof Parent) {
+            for (Node c : ((Parent) n).getChildrenUnmodifiable()) clearTextStyleRecursive(c);
+        }
+    }
+
+    private void clearShapeStyleRecursive(Node n) {
+        if (n == null) return;
+        if (n instanceof Shape) {
+            try { ((Shape) n).setStyle(""); } catch (Exception ignored) {}
+        }
+        if (n instanceof Parent) {
+            for (Node c : ((Parent) n).getChildrenUnmodifiable()) clearShapeStyleRecursive(c);
+        }
+    }
+
+    public static void main(String[] args) { launch(args); }
+
 }
+
