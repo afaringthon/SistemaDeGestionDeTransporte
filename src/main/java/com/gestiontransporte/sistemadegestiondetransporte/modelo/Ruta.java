@@ -1,5 +1,7 @@
 package com.gestiontransporte.sistemadegestiondetransporte.modelo;
 
+import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.Criterio;
+
 import java.util.Objects;
 
 public class Ruta {
@@ -84,13 +86,7 @@ public class Ruta {
 
     @Override
     public String toString() {
-        return "Ruta{" +
-                "origen=" + origen +
-                ", destino=" + destino +
-                ", distancia=" + distancia +
-                ", tiempo=" + tiempo +
-                ", costo=" + costo +
-                ", Tipo de Vehículo='" + tipoDeVehiculo + '\'' +
-                '}';
+        return String.valueOf(distancia) + " km";
     }
+
 }

@@ -111,7 +111,7 @@ public class MainApp extends Application {
             // keep reference for highlight operations
             currentPanel = panel;
             panel.getStyleClass().add("smartgraph-custom");
-            panel.setAutomaticLayout(true);
+            panel.setAutomaticLayout(false);
 
             // make panel reference effectively final for use inside the listener
             final SmartGraphPanel[] panelRef = new SmartGraphPanel[] { panel };
