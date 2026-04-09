@@ -76,7 +76,17 @@ public class Ruta {
 
     @Override
     public String toString() {
-        return String.valueOf(distancia) + " km";
+        return getOrigen().getId() + "->" + getDestino().getId();
+    }
+
+
+
+
+
+
+    @com.brunomnsilva.smartgraph.graphview.SmartLabelSource
+    public String getEtiqueta() {
+        return getOrigen().getId() + "->" + getDestino().getId();
     }
 
 }

@@ -1,58 +1,18 @@
-/* Modern polished JavaFX stylesheet (clean, minimal and consistent)
-   This file restores a simple but modern look and contains overrides
-   for SmartGraph visuals (vertex, edges, arrows), spinners and radio buttons.
-   Replace this file to revert to the "modern" style used before. */
-
-/* Root variables */
 .root {
     -fx-font-family: "Segoe UI", "Helvetica Neue", Arial;
     -fx-font-size: 13px;
-
-    /* Color palette */
-    -fx-accent: #2A8AF6; /* main blue */
-    -fx-primary: #164E8C; /* darker blue for text */
-    -fx-muted: #718096; /* gray text */
-    -fx-bg: #F5F7FA; /* app background */
-    -fx-surface: #FFFFFF; /* card / panels */
+    -fx-accent: #2A8AF6;
+    -fx-primary: #164E8C;
+    -fx-muted: #718096;
+    -fx-bg: #F5F7FA;
+    -fx-surface: #FFFFFF;
     -fx-border: #E6E9EE;
 }
 
-/* Application layout */
 .border-pane {
     -fx-background-color: -fx-bg;
 }
 
-.card {
-    -fx-background-color: -fx-surface;
-    -fx-padding: 10 12 10 12;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-border-color: -fx-border;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 8, 0.0, 0, 2);
-}
-
-/* TabPane tweaks: keep tab header compact and aligned top-left */
-.tab-pane {
-    -fx-background-color: transparent;
-}
-.tab-pane .tab-header-area {
-    -fx-background-color: transparent;
-    -fx-padding: 0 6 6 6;
-}
-.tab-pane .tab {
-    -fx-background-color: transparent;
-    -fx-padding: 6 10 6 10;
-}
-.tab-pane .tab:selected {
-    -fx-background-color: transparent;
-}
-.tab-pane .tab-label {
-    -fx-text-fill: -fx-primary;
-    -fx-font-weight: 600;
-}
-
-/* Buttons */
 .button {
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #60AFFF 0%, -fx-accent 100%);
     -fx-text-fill: white;
@@ -61,106 +21,50 @@
     -fx-border-radius: 8;
     -fx-font-weight: 600;
 }
-.button.secondary {
-    -fx-background-color: transparent;
-    -fx-border-color: -fx-border;
-    -fx-text-fill: -fx-primary;
-}
 .button:hover { -fx-opacity: 0.95; }
 
-/* Spinners (make nicer) */
-.spinner {
-    -fx-background-color: transparent;
-}
-.spinner .increment-arrow, .spinner .decrement-arrow {
-    -fx-shape: ""; /* keep default but hide heavy visuals */
-}
-.spinner .editor {
-    -fx-background-color: transparent;
-    -fx-border-color: -fx-border;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
-    -fx-padding: 4 6 4 6;
-}
-
-/* RadioButton: make the circle centered and nicer */
-.radio-button .radio {
-    -fx-background-color: transparent;
-    -fx-border-color: -fx-border;
-    -fx-border-radius: 12;
-    -fx-background-radius: 12;
-    -fx-min-width: 18; -fx-min-height: 18; -fx-pref-width: 18; -fx-pref-height: 18;
-}
-.radio-button:selected .radio {
-    -fx-background-color: -fx-accent;
-    -fx-border-color: derive(-fx-accent, -20%);
-}
-.radio-button .radio .dot {
-    -fx-background-color: white;
-    -fx-shape: ""; /* some versions use a dot node */
-}
-
-/* ComboBox / ListCell small polish */
 .combo-box, .list-view {
     -fx-background-color: -fx-surface;
     -fx-border-color: -fx-border;
     -fx-border-radius: 6;
 }
 
-/* SmartGraph specific styling: apply a clear namespace class from code: e.g. panel.getStyleClass().add("smartgraph-custom") */
 .smartgraph-custom {
     -fx-font-size: 12px;
 }
 
-/* Vertex visuals (bigger, blue filled circle with white stroke) */
 .smartgraph-custom .vertex, .smartgraph-custom .vertex-visual {
     -fx-fill: -fx-accent;
     -fx-stroke: white;
     -fx-stroke-width: 2;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0.0, 0, 2);
 }
-.smartgraph-custom .vertex .label {
-    -fx-text-fill: white;
-    -fx-font-weight: 700;
-}
 
-/* Make vertices slightly larger by default; SmartGraph may provide size control, but CSS helps */
 .smartgraph-custom .vertex-visual {
     -fx-scale-x: 1.15; -fx-scale-y: 1.15;
 }
 
-/* Edge visuals: thicker, blue-gray stroke and arrow heads colored the same */
-.smartgraph-custom .edge, .smartgraph-custom .edge-line, .smartgraph-custom .edge-path, .smartgraph-custom polyline {
-    -fx-stroke: derive(-fx-accent, -25%);
-    -fx-stroke-width: 3.0;
+.smartgraph-custom .edge, .smartgraph-custom .edge-line,
+.smartgraph-custom .edge-path, .smartgraph-custom polyline {
+    -fx-stroke: #808080;
+    -fx-stroke-width: 2.0;
     -fx-stroke-line-cap: round;
     -fx-stroke-line-join: round;
     -fx-fill: transparent;
 }
 
-/* Arrow heads that SmartGraph exposes */
 .smartgraph-custom .arrow-head, .smartgraph-custom .edge-arrow {
-    -fx-fill: derive(-fx-accent, -25%);
+    -fx-fill: #808080;
 }
 
-/* Edge labels: keep simple, truncate long texts visually with ellipsis via max-width */
-.smartgraph-custom .edge-label {
-    -fx-background-color: transparent;
-    -fx-padding: 2 6 2 6;
-}
 .smartgraph-custom .edge-label .label {
     -fx-text-fill: -fx-primary;
     -fx-font-size: 11px;
-    -fx-max-width: 140px; /* keep labels from being huge */
 }
 
-/* Ensure shapes don't render as solid black by forcing fill transparent when possible */
 .smartgraph-custom path, .smartgraph-custom polygon, .smartgraph-custom rect {
     -fx-fill: transparent !important;
 }
 
-/* Minor helper: subtle muted text */
 .muted { -fx-text-fill: -fx-muted; }
-
-/* Utilities */
 .centered { -fx-alignment: center; }

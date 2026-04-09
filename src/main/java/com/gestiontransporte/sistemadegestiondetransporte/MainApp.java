@@ -9,7 +9,6 @@ import javafx.scene.control.Labeled;
 import javafx.scene.text.Text;
 import javafx.scene.shape.Shape;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Set;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Grafo;
 import com.gestiontransporte.sistemadegestiondetransporte.modelo.Parada;
@@ -19,30 +18,18 @@ import com.gestiontransporte.sistemadegestiondetransporte.persistencia.JsonData;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-// ...existing imports...
 import javafx.stage.Stage;
 
-// ...existing code...
-
-/**
- * Clean MainApp that uses SmartGraph 2.x API in a minimal, robust way.
- * - Builds demo data if none present
- * - Creates SmartGraphPanel with circular placement
- * - Initializes SmartGraph only after the container has a valid size
- */
 public class MainApp extends Application {
 
     private Grafo grafo = new Grafo();
     private MainController controllerRef;
-    // keep a reference to the currently displayed SmartGraphPanel so we can highlight vertices
     private SmartGraphPanel<Parada, Ruta> currentPanel = null;
 
     @Override
     public void start(Stage stage) throws Exception {
-        // load model using JsonData (persistence). If loading fails, fall back to an empty Grafo.
         try {
             grafo = JsonData.cargar();
             if (grafo == null) grafo = new Grafo();
@@ -66,7 +53,6 @@ public class MainApp extends Application {
         stage.setMaximized(true);
         stage.show();
 
-        // draw after shown
         Platform.runLater(this::drawGraph);
     }
 
@@ -77,12 +63,10 @@ public class MainApp extends Application {
             AnchorPane container = controllerRef.getGraphContainer();
             if (container == null) return;
 
-            // Use a directed graph implementation (DigraphEdgeList) containing Parada vertices and Ruta edges.
             DigraphEdgeList<Parada, Ruta> sg = new DigraphEdgeList<>();
             for (Parada p : grafo.getParadas()) {
                 sg.insertVertex(p);
             }
-            // add directed edges for each Ruta
             for (Parada o : grafo.getParadas()) {
                 for (Ruta r : grafo.getRutasDesde(o)) {
                     Parada d = r.getDestino();
@@ -106,18 +90,13 @@ public class MainApp extends Application {
             } catch (Exception ex) {
                 placement = new SmartCircularSortedPlacementStrategy();
             }
-            // Create SmartGraphPanel directly from the directed graph
+
             SmartGraphPanel<Parada, Ruta> panel = new SmartGraphPanel<>(sg, placement);
-            // keep reference for highlight operations
             currentPanel = panel;
             panel.getStyleClass().add("smartgraph-custom");
             panel.setAutomaticLayout(false);
 
-            // make panel reference effectively final for use inside the listener
             final SmartGraphPanel[] panelRef = new SmartGraphPanel[] { panel };
-
-
-            // attach panel to controller container (no custom overlay)
             controllerRef.setGraphPane(panel);
 
             Runnable initTask = new Runnable() {
@@ -130,13 +109,6 @@ public class MainApp extends Application {
                         panelRef[0].init();
                         panelRef[0].update();
                         panelRef[0].updateAndWait();
-                        // debug: print counts of visual nodes created by SmartGraph
-                        try {
-                            int verts = panelRef[0].lookupAll(".vertex").size() + panelRef[0].lookupAll(".vertex-visual").size();
-                            int edges = panelRef[0].lookupAll(".edge").size() + panelRef[0].lookupAll(".edge-path").size();
-                            System.out.println("[DEBUG] SmartGraph visuals: vertices=" + verts + ", edges=" + edges);
-                        } catch (Exception ignored) {}
-                        // nothing extra: SmartGraph handles edge rendering
                     } catch (IllegalStateException ise) {
                         Platform.runLater(this);
                     } catch (Exception ex) {
@@ -154,32 +126,22 @@ public class MainApp extends Application {
         } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-    // helpers used by controller
     public void smartAddParada(Parada p) { redraw(); }
     public void smartRemoveParada(Parada p) { redraw(); }
     public void smartAddRuta(Parada o, Parada d) { redraw(); }
     public void smartRemoveRuta(Parada o, Parada d) { redraw(); }
 
-    /**
-     * Highlight the supplied Parada vertices in the current SmartGraphPanel.
-     * This is a simple implementation that matches vertex visuals by the displayed label text
-     * (Parada.toString()) and applies an inline style to make them visually distinct.
-     */
     public void highlightParadas(List<Parada> paradas) {
         if (currentPanel == null) return;
         Platform.runLater(() -> {
             try {
-                // clear previous highlights
-                try {
-                    Set<Node> all = currentPanel.lookupAll(".vertex, .vertex-visual");
-                    for (Node n : all) {
-                        n.getStyleClass().remove("highlighted-vertex");
-                        n.setStyle("");
-                        // also clear on child labeled/text nodes
-                        clearTextStyleRecursive(n);
-                        clearShapeStyleRecursive(n);
-                    }
-                } catch (Exception ignored) {}
+                Set<Node> all = currentPanel.lookupAll(".vertex, .vertex-visual");
+                for (Node n : all) {
+                    n.getStyleClass().remove("highlighted-vertex");
+                    n.setStyle("");
+                    clearTextStyleRecursive(n);
+                    clearShapeStyleRecursive(n);
+                }
 
                 if (paradas == null || paradas.isEmpty()) return;
 
@@ -189,10 +151,8 @@ public class MainApp extends Application {
                     for (Node n : candidates) {
                         String found = findLabelTextRecursive(n);
                         if (found != null && found.equals(target)) {
-                            // apply highlight styles
                             try { n.getStyleClass().add("highlighted-vertex"); } catch (Exception ignored) {}
                             try { n.setStyle("-fx-effect: dropshadow(gaussian, rgba(220,50,47,0.9), 10, 0.2, 0, 0);"); } catch (Exception ignored) {}
-                            // color inner text or shape if present
                             applyTextStyleRecursive(n, "-fx-fill: #d62728; -fx-font-weight: bold;");
                             applyShapeStyleRecursive(n, "-fx-stroke: #d62728; -fx-stroke-width: 2; -fx-fill: white;");
                         }
@@ -204,41 +164,9 @@ public class MainApp extends Application {
         });
     }
 
-    public void highlightRutas(List<Parada> camino) {
-        if (currentPanel == null) return;
-        Platform.runLater(() -> {
-            try {
-                // limpiar colores anteriores
-                Set<Node> edges = currentPanel.lookupAll(".edge, .edge-path");
-                for (Node n : edges) {
-                    n.setStyle("");
-                }
-
-                if (camino == null || camino.size() < 2) return;
-
-                // colorear aristas del camino
-                for (int i = 0; i < camino.size() - 1; i++) {
-                    String origenLabel = camino.get(i).toString();
-                    String destinoLabel = camino.get(i + 1).toString();
-
-                    for (Node n : edges) {
-                        String found = findLabelTextRecursive(n);
-                        if (found != null && (found.contains(origenLabel) || found.contains(destinoLabel))) {
-                            n.setStyle("-fx-stroke: #2131df; -fx-stroke-width: 3;");
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-    }
-
     private String findLabelTextRecursive(Node n) {
         if (n == null) return null;
-        if (n instanceof Labeled) {
-            return ((Labeled) n).getText();
-        }
+        if (n instanceof Labeled) return ((Labeled) n).getText();
         if (n instanceof Text) return ((Text) n).getText();
         if (n instanceof Parent) {
             for (Node c : ((Parent) n).getChildrenUnmodifiable()) {
@@ -251,12 +179,8 @@ public class MainApp extends Application {
 
     private void applyTextStyleRecursive(Node n, String style) {
         if (n == null) return;
-        if (n instanceof Labeled) {
-            try { ((Labeled) n).setStyle(style); } catch (Exception ignored) {}
-        }
-        if (n instanceof Text) {
-            try { ((Text) n).setStyle(style); } catch (Exception ignored) {}
-        }
+        if (n instanceof Labeled) { try { ((Labeled) n).setStyle(style); } catch (Exception ignored) {} }
+        if (n instanceof Text) { try { ((Text) n).setStyle(style); } catch (Exception ignored) {} }
         if (n instanceof Parent) {
             for (Node c : ((Parent) n).getChildrenUnmodifiable()) applyTextStyleRecursive(c, style);
         }
@@ -264,9 +188,7 @@ public class MainApp extends Application {
 
     private void applyShapeStyleRecursive(Node n, String style) {
         if (n == null) return;
-        if (n instanceof Shape) {
-            try { ((Shape) n).setStyle(style); } catch (Exception ignored) {}
-        }
+        if (n instanceof Shape) { try { ((Shape) n).setStyle(style); } catch (Exception ignored) {} }
         if (n instanceof Parent) {
             for (Node c : ((Parent) n).getChildrenUnmodifiable()) applyShapeStyleRecursive(c, style);
         }
@@ -274,12 +196,8 @@ public class MainApp extends Application {
 
     private void clearTextStyleRecursive(Node n) {
         if (n == null) return;
-        if (n instanceof Labeled) {
-            try { ((Labeled) n).setStyle(""); } catch (Exception ignored) {}
-        }
-        if (n instanceof Text) {
-            try { ((Text) n).setStyle(""); } catch (Exception ignored) {}
-        }
+        if (n instanceof Labeled) { try { ((Labeled) n).setStyle(""); } catch (Exception ignored) {} }
+        if (n instanceof Text) { try { ((Text) n).setStyle(""); } catch (Exception ignored) {} }
         if (n instanceof Parent) {
             for (Node c : ((Parent) n).getChildrenUnmodifiable()) clearTextStyleRecursive(c);
         }
@@ -287,15 +205,11 @@ public class MainApp extends Application {
 
     private void clearShapeStyleRecursive(Node n) {
         if (n == null) return;
-        if (n instanceof Shape) {
-            try { ((Shape) n).setStyle(""); } catch (Exception ignored) {}
-        }
+        if (n instanceof Shape) { try { ((Shape) n).setStyle(""); } catch (Exception ignored) {} }
         if (n instanceof Parent) {
             for (Node c : ((Parent) n).getChildrenUnmodifiable()) clearShapeStyleRecursive(c);
         }
     }
 
     public static void main(String[] args) { launch(args); }
-
 }
-
