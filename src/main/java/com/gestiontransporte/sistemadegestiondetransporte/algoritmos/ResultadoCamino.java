@@ -26,7 +26,7 @@ public class ResultadoCamino {
 
     // Para buscar rutas alternativas
     public Ruta getRutaABloquear(Grafo grafo){
-
+        System.out.println("CAMINO SIZE: " + camino.size());
         if(camino.size() < 2) return null;
 
         Parada p0 = camino.get(0);
@@ -39,6 +39,5 @@ public class ResultadoCamino {
         }
         return null;
     }
-
 
 }

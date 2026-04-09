@@ -4,32 +4,25 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
-<BorderPane prefHeight="953.0" prefWidth="1421.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestiontransporte.sistemadegestiondetransporte.ui.MainController">
+<BorderPane prefHeight="700.0" prefWidth="1000.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestiontransporte.sistemadegestiondetransporte.ui.MainController">
 
     <top>
-        <HBox spacing="10" style="-fx-padding: 10; -fx-background-color: #1e1e2e;">
+        <HBox spacing="8" style="-fx-padding: 10; -fx-background-color: #1e1e2e;">
             <children>
-                <Label text="Map.io" textFill="WHITE">
-                    <font><Font name="Segoe UI Bold" size="18.0" /></font>
-                </Label>
+                <ComboBox fx:id="comboCalcOrigen" promptText="Origen" prefWidth="160" />
+                <ComboBox fx:id="comboCalcDestino" promptText="Destino" prefWidth="160" />
+                <ComboBox fx:id="comboCriterio" promptText="Criterio" prefWidth="120" />
+                <ComboBox fx:id="comboAlgoritmo" promptText="Algoritmo" prefWidth="140" />
+                <ComboBox fx:id="comboVehiculo" promptText="Vehículo" prefWidth="120" />
+                <Button fx:id="btnBuscarRuta" text="Buscar Ruta" onAction="#onBuscarRuta" />
+                <Button fx:id="btnVerAlternativa" text="Ver Ruta Alternativa" onAction="#onVerAlternativa" />
                 <Separator orientation="VERTICAL" />
-                <ComboBox fx:id="comboCalcOrigen" prefHeight="35.0" prefWidth="130.0" promptText="Origen" />
-                <ComboBox fx:id="comboCalcDestino" prefHeight="35.0" prefWidth="130.0" promptText="Destino" />
-                <ComboBox fx:id="comboCriterio" prefHeight="35.0" prefWidth="120.0" promptText="Criterio" />
-                <ComboBox fx:id="comboAlgoritmo" prefHeight="35.0" prefWidth="120.0" promptText="Algoritmo" />
-                <ComboBox fx:id="comboVehiculo" prefHeight="35.0" prefWidth="150.0" promptText="Vehículo" />
-                <Button mnemonicParsing="false" onAction="#onBuscarRuta" prefHeight="35.0" prefWidth="120.0" text="Buscar Ruta" style="-fx-background-color: #2131df; -fx-text-fill: white;" />
-                <Button mnemonicParsing="false" onAction="#onVerAlternativa" prefHeight="35.0" prefWidth="150.0" text="Ver Ruta Alternativa" style="-fx-background-color: #7c3aed; -fx-text-fill: white;" />
-                <Separator orientation="VERTICAL" />
-                <Button mnemonicParsing="false" onAction="#onGuardarGrafo" prefHeight="35.0" prefWidth="120.0" text="Guardar" style="-fx-background-color: #ea580c; -fx-text-fill: white;" />
-                <Button mnemonicParsing="false" onAction="#onAgregarParada" prefHeight="35.0" prefWidth="130.0" text="Agregar Parada" style="-fx-background-color: #16a34a; -fx-text-fill: white;" />
-                <Button mnemonicParsing="false" onAction="#onAgregarRuta" prefHeight="35.0" prefWidth="120.0" text="Agregar Ruta" style="-fx-background-color: #16a34a; -fx-text-fill: white;" />
+                <Button fx:id="btnAgregarParada" text="Agregar Parada" onAction="#onAgregarParada" />
+                <Button fx:id="btnAgregarRuta" text="Agregar Ruta" onAction="#onAgregarRuta" />
+                <Button fx:id="btnGuardarGrafo" text="Guardar" onAction="#onGuardarGrafo" />
             </children>
         </HBox>
     </top>
@@ -39,35 +32,27 @@
     </center>
 
     <right>
-        <VBox prefWidth="220.0" spacing="10" style="-fx-padding: 10; -fx-background-color: #f5f5f5;">
+        <VBox prefWidth="260" spacing="8" style="-fx-padding: 12; -fx-background-color: #f5f5f5;">
             <children>
-                <Label text="Resultados" textFill="#0b002b">
-                    <font><Font name="Segoe UI Bold" size="18.0" /></font>
-                </Label>
-                <Separator />
-                <Label text="Ruta Principal:" textFill="#2131df">
-                    <font><Font name="Segoe UI Bold" size="14.0" /></font>
-                </Label>
+                <Label text="Ruta principal:" />
                 <Label fx:id="labelRutaPrincipal" text="-" wrapText="true" />
                 <Label fx:id="labelValorPrincipal" text="-" />
                 <Separator />
-                <Label text="Ruta Alternativa:" textFill="#7c3aed">
-                    <font><Font name="Segoe UI Bold" size="14.0" /></font>
-                </Label>
+                <Label text="Ruta alternativa:" />
                 <Label fx:id="labelRutaAlternativa" text="-" wrapText="true" />
                 <Label fx:id="labelValorAlternativo" text="-" />
                 <Separator />
-                <Button mnemonicParsing="false" onAction="#onModificarParada" prefWidth="200.0" text="Modificar Parada" style="-fx-background-color: #2563eb; -fx-text-fill: white;" />
-                <Button mnemonicParsing="false" onAction="#onRemoverParada" prefWidth="200.0" text="Eliminar Parada" style="-fx-background-color: #dc2626; -fx-text-fill: white;" />
                 <Separator />
-                <Button mnemonicParsing="false" onAction="#onEditarRuta" prefWidth="200.0" text="Modificar Ruta" style="-fx-background-color: #2563eb; -fx-text-fill: white;" />
-                <Button mnemonicParsing="false" onAction="#onRemoverRuta" prefWidth="200.0" text="Eliminar Ruta" style="-fx-background-color: #dc2626; -fx-text-fill: white;" />
-            </children>
+                <Button fx:id="btnModificarParada" text="Modificar Parada" onAction="#onModificarParada" maxWidth="Infinity" />
+                <Button fx:id="btnEliminarParada" text="Eliminar Parada" onAction="#onRemoverParada" maxWidth="Infinity" style="-fx-background-color: #dc2626; -fx-text-fill: white;" />
+                <Separator />
+                <Button fx:id="btnModificarRuta" text="Modificar Ruta" onAction="#onEditarRuta" maxWidth="Infinity" />
+                <Button fx:id="btnEliminarRuta" text="Eliminar Ruta" onAction="#onRemoverRuta" maxWidth="Infinity" style="-fx-background-color: #dc2626; -fx-text-fill: white;" />            </children>
         </VBox>
     </right>
 
     <bottom>
-        <Label fx:id="statusLabel" text="Estado: Listo" style="-fx-padding: 5;" />
+        <Label fx:id="statusLabel" text="Estado: Listo" style="-fx-padding: 6;" />
     </bottom>
 
 </BorderPane>

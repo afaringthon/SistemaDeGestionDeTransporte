@@ -76,17 +76,11 @@ public class Ruta {
 
     @Override
     public String toString() {
-        return getOrigen().getId() + "->" + getDestino().getId();
+        return origen.getNombre() + " -> " + destino.getNombre();
     }
-
-
-
-
-
 
     @com.brunomnsilva.smartgraph.graphview.SmartLabelSource
     public String getEtiqueta() {
-        return getOrigen().getId() + "->" + getDestino().getId();
+        return distancia + " km | " + tiempo + " min | $" + costo;
     }
-
 }

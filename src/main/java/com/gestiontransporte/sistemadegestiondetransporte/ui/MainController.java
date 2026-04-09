@@ -82,7 +82,7 @@ public class MainController {
 	private void initialize() {
 		try {
 			if (comboCriterio != null) comboCriterio.getItems().addAll("TIEMPO", "DISTANCIA", "COSTO");
-			if (comboAlgoritmo != null) comboAlgoritmo.getItems().addAll("DIJKSTRA", "BELLMAN-FORD", "BFS", "FLOYD");
+			if (comboAlgoritmo != null) comboAlgoritmo.getItems().addAll("DIJKSTRA", "BELLMAN-FORD", "BFS");
 			if (comboVehiculo != null) comboVehiculo.getItems().addAll("Carro", "Moto", "A Pie");
 		} catch (Exception ignore) {}
 	}
@@ -390,6 +390,7 @@ public class MainController {
 		mostrarResultado(alternativa, criterio, false);
 		if (mainApp != null) {
 			mainApp.highlightParadas(principal.getCamino());
+			mainApp.highlightParadasAlternativa(alternativa.getCamino());
 		}
 	}
 

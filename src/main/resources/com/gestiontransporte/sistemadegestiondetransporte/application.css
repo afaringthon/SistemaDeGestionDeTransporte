@@ -129,6 +129,14 @@
     -fx-scale-x: 1.15; -fx-scale-y: 1.15;
 }
 
+/* Highlighted vertex style used when path is selected */
+.smartgraph-custom .highlighted-vertex, .smartgraph-custom .highlighted-vertex .vertex, .smartgraph-custom .highlighted-vertex .vertex-visual {
+    -fx-fill: #ff7f0e; /* orange */
+    -fx-stroke: white;
+    -fx-stroke-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(255,127,14,0.35), 10, 0.0, 0, 3);
+}
+
 /* Edge visuals: thicker, blue-gray stroke and arrow heads colored the same */
 .smartgraph-custom .edge, .smartgraph-custom .edge-line, .smartgraph-custom .edge-path, .smartgraph-custom polyline {
     -fx-stroke: derive(-fx-accent, -25%);
@@ -136,6 +144,20 @@
     -fx-stroke-line-cap: round;
     -fx-stroke-line-join: round;
     -fx-fill: transparent;
+}
+
+/* overlay edges drawn by MainApp (straight blue lines) */
+.overlay-edge {
+    -fx-stroke: #1f77b4;
+    -fx-stroke-width: 3px;
+    -fx-opacity: 0.95;
+}
+
+/* Highlighted edge applied to SmartGraph native edge nodes */
+.smartgraph-custom .highlighted-edge {
+    -fx-stroke: #1f77b4 !important;
+    -fx-stroke-width: 4px !important;
+    -fx-opacity: 1 !important;
 }
 
 /* Arrow heads that SmartGraph exposes */

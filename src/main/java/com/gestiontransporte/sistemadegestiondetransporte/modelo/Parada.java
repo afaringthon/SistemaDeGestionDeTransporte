@@ -27,7 +27,7 @@ public class Parada {
 
     @Override
     public String toString() {
-        return id + " - " + nombre;
+        return nombre;
     }
 
     @Override
