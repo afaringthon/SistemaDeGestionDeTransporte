@@ -9,16 +9,16 @@ import java.util.*;
 public class BellmanFord {
 
     // Para conseguir el peso de cada criterio de una ruta
-    private double getPeso(Ruta r, Criterio criterio){
+    private double getPeso(Ruta r, Criterio criterio, String tipoDeVehiculo){
         return switch (criterio) {
-            case TIEMPO -> CalcularTiempo.calcular(r, r.getTipoDeVehiculo());
+            case TIEMPO -> CalcularTiempo.calcular(r, tipoDeVehiculo);
             case DISTANCIA -> r.getDistancia();
             case COSTO -> r.getCosto();
         };
     }
 
 
-    public ResultadoCamino calcularBellman(Grafo grafo, int idOrigen, int idDestino, Criterio criterio){
+    public ResultadoCamino calcularBellman(Grafo grafo, int idOrigen, int idDestino, Criterio criterio, String tipoDeVehiculo){
 
         Map<Integer, Double> costoCriterio = new HashMap<>();
         Map<Integer, Integer> anteriores = new HashMap<>();
@@ -48,17 +48,17 @@ public class BellmanFord {
 
                 int origenActual = r.getOrigen().getId();
                 int destinoActual = r.getDestino().getId();
-                double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
 
                 // si no ha sido descubierto, que lo salte
                 if(costoCriterio.get(origenActual) == Double.POSITIVE_INFINITY){
                     continue;
+                }
 
-                }else if(costoNuevo < costoCriterio.get(destinoActual)){
+                // solo calcula si el origen ya fue descubierto
+                double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio, tipoDeVehiculo);
 
-                    // actualizo el mejor costo para llegar a destino
+                if(costoNuevo < costoCriterio.get(destinoActual)){
                     costoCriterio.put(destinoActual, costoNuevo);
-                    // se guarda el destino, y de donde llego al destino
                     anteriores.put(destinoActual, origenActual);
                 }
             }
@@ -70,7 +70,7 @@ public class BellmanFord {
             int destinoActual = r.getDestino().getId();
 
             // suma el costo de cada ruta, desde el origen
-            double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio);
+            double costoNuevo = costoCriterio.get(origenActual) + getPeso(r, criterio, tipoDeVehiculo);
 
             // no debe haber ningun camino mas caro que el costo que tiene llegar al destino
             if(costoNuevo < costoCriterio.get(destinoActual)){

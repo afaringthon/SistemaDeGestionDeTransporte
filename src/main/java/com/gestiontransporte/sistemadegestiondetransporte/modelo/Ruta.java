@@ -10,23 +10,13 @@ public class Ruta {
     private double distancia;
     private double tiempo;
     private double costo;
-    private String tipoDeVehiculo;
 
-    public Ruta(Parada origen, Parada destino, double distancia, double tiempo, double costo, String tipoDeVehiculo) {
+    public Ruta(Parada origen, Parada destino, double distancia, double tiempo, double costo) {
         this.origen = origen;
         this.destino = destino;
         this.distancia = distancia;
         this.tiempo = tiempo;
         this.costo = costo;
-        this.tipoDeVehiculo = tipoDeVehiculo;
-    }
-
-    public String getTipoDeVehiculo() {
-        return tipoDeVehiculo;
-    }
-
-    public void setTipoDeVehiculo(String tipoDeVehiculo) {
-        this.tipoDeVehiculo = tipoDeVehiculo;
     }
 
     public double getCosto() {

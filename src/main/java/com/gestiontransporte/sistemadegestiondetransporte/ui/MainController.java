@@ -56,6 +56,9 @@ public class MainController {
 	@FXML private Button btnRemoverRuta;
 
 	// Control for calcular ruta
+	@FXML private ComboBox<Parada> comboCalcOrigen;
+	@FXML private ComboBox<Parada> comboCalcDestino;
+	@FXML private ToggleGroup vehiculo;
 	@FXML private Button btnCalcularRuta;
 
 	// referencias que MainApp seteará
@@ -134,6 +137,7 @@ public class MainController {
 
 	// actualizar combos internos del controlador según el grafo
 	public void actualizarCombosParadas() {
+
 		if (grafo == null) return;
 		if (comboRutaOrigen != null) {
 			comboRutaOrigen.getItems().setAll(grafo.getParadas());
@@ -144,6 +148,9 @@ public class MainController {
 		if (comboRutas != null) {
 			comboRutas.getItems().setAll(grafo.getTodasLasRutas());
 		}
+
+		if (comboCalcOrigen != null) comboCalcOrigen.getItems().setAll(grafo.getParadas());
+		if (comboCalcDestino != null) comboCalcDestino.getItems().setAll(grafo.getParadas());
 	}
 
 	// ---------- Handlers ----------
@@ -167,8 +174,7 @@ public class MainController {
 				mainApp.smartAddParada(p);
 			}
 		} else {
-			showError("No se pudo agregar la parada (ya existe?)");
-		}
+			showError("Ya existe una parada con el nombre: " + nombre);		}
 	}
 
 	@FXML
@@ -209,22 +215,29 @@ public class MainController {
 	@FXML
 	private void onAgregarRuta(ActionEvent event) {
 		if (grafo == null) { showError("Grafo no inicializado"); return; }
+
 		Parada o = comboRutaOrigen != null ? comboRutaOrigen.getValue() : null;
 		Parada d = comboRutaDestino != null ? comboRutaDestino.getValue() : null;
+
 		if (o == null || d == null) { showError("Selecciona origen y destino"); return; }
-		try {
-			double dist = spinnerDistancia != null ? spinnerDistancia.getValue() : 1.0;
-			double tiem = spinnerTiempo != null ? spinnerTiempo.getValue() : 1.0;
-			double costo = spinnerCosto != null ? spinnerCosto.getValue() : 0.0;
-			String tipo = txtLinea != null ? txtLinea.getText() : "bus";
-			boolean ok = grafo.crearRutaDoble(o, d, dist, tiem, costo, tipo);
-			if (ok) {
-				showInfo("Ruta agregada entre " + o.getNombre() + " y " + d.getNombre());
-				actualizarCombosParadas();
-				if (mainApp != null) mainApp.smartAddRuta(o, d);
-			}
-			else showError("No se pudo agregar la ruta (verifica datos)");
-		} catch (Exception ex) { setStatus("Datos inválidos para la ruta"); }
+		if (o.equals(d)){ showError("El origen y destino no pueden ser la misma parada"); return; }
+
+		double dist = spinnerDistancia != null ? spinnerDistancia.getValue() : 1.0;
+		double tiem = spinnerTiempo != null ? spinnerTiempo.getValue() : 1.0;
+		double costo = spinnerCosto != null ? spinnerCosto.getValue() : 1.0;
+
+		if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return ; }
+		if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+
+		Ruta nuevaRuta = new Ruta(o,d,dist,tiem,costo);
+
+		boolean ok = grafo.agregarRuta(nuevaRuta);
+		if (ok) {
+			showInfo("Ruta agregada entre " + o.getNombre() + " y " + d.getNombre());
+			actualizarCombosParadas();
+			if (mainApp != null) mainApp.smartAddRuta(o, d);
+		}
+		else showError("Ya existe una ruta entre " + o.getId() + " y " + d.getNombre());
 	}
 
 	@FXML

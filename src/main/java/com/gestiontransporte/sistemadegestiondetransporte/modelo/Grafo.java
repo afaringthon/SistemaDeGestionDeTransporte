@@ -15,6 +15,13 @@ public class Grafo {
             return false;
         }
 
+        // verificar nombre duplicado sin importar mayusculas
+        for(Parada p : adyacencia.keySet()){
+            if(p.getNombre().equalsIgnoreCase(parada.getNombre())){
+                return false;
+            }
+        }
+
         if(adyacencia.containsKey(parada)){
             return false;
         }
@@ -66,7 +73,7 @@ public class Grafo {
             return false;
         }
 
-        if(ruta.getDistancia() <= 0 || ruta.getTiempo() <= 0 || (ruta.getTipoDeVehiculo() == null) || ruta.getTipoDeVehiculo().isBlank()){
+        if(ruta.getDistancia() <= 0 || ruta.getTiempo() <= 0){
             return false;
         }
 
@@ -133,8 +140,6 @@ public class Grafo {
         viejaRuta.setDistancia(nuevaRuta.getDistancia());
         viejaRuta.setTiempo(nuevaRuta.getTiempo());
         viejaRuta.setCosto(nuevaRuta.getCosto());
-        viejaRuta.setTipoDeVehiculo(nuevaRuta.getTipoDeVehiculo());
-
         return true;
     }
 
@@ -162,9 +167,9 @@ public class Grafo {
         return false;
     }
 
-    public boolean crearRutaDoble(Parada o, Parada d, double dist, double tiem, double costo, String tipoDeVehiculo) {
+    public boolean crearRutaDoble(Parada o, Parada d, double dist, double tiem, double costo) {
 
-        if(o == null || d == null || o.equals(d) || tipoDeVehiculo == null){
+        if(o == null || d == null || o.equals(d)){
             return false;
         }
 
@@ -172,9 +177,9 @@ public class Grafo {
             return false;
         }
 
-        Ruta ida = new Ruta(o, d, dist, tiem, costo, tipoDeVehiculo);
+        Ruta ida = new Ruta(o, d, dist, tiem, costo);
 
-        Ruta vuelta = new Ruta(d, o, dist, tiem, costo, tipoDeVehiculo);
+        Ruta vuelta = new Ruta(d, o, dist, tiem, costo);
 
         if( !agregarRuta(ida) ){
             return false;

@@ -42,4 +42,7 @@ public class Parada {
         return Objects.hash(id);
     }
 
+    public static void setSerial(int nuevoSerial) {
+        serial = nuevoSerial;
+    }
 }

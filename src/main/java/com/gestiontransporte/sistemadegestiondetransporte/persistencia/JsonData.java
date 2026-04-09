@@ -57,6 +57,12 @@ public class JsonData {
                 grafo.agregarParada(p);
             }
 
+            int maxId = data.paradas.stream()
+                    .mapToInt(Parada::getId)
+                    .max()
+                    .orElse(0);
+            Parada.setSerial(maxId + 1);
+
             // Luego las rutas
             for (Ruta r : data.rutas) {
                 grafo.agregarRuta(r);
