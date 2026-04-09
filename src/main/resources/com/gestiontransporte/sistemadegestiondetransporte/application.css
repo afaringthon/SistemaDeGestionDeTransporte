@@ -47,9 +47,61 @@
 .tab-pane .tab:selected {
     -fx-background-color: transparent;
 }
+
+/* Remove focus/faint focus rings that JavaFX may draw on keyboard selection */
+.tab-pane .tab:focused, .tab-pane .tab:selected:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: none;
+}
 .tab-pane .tab-label {
     -fx-text-fill: -fx-primary;
     -fx-font-weight: 600;
+}
+
+/* Improved Tab header visuals */
+.tab-pane .tab-header-area {
+    -fx-background-color: transparent;
+    -fx-padding: 8 10 6 10;
+}
+.tab-pane .tab-header-background { -fx-background-color: transparent; }
+.tab-pane .tab { -fx-background-color: transparent; -fx-padding: 6 12; }
+.tab-pane .tab:hover { -fx-background-color: rgba(42,138,246,0.06); }
+.tab-pane .tab:selected {
+    /* subtle selected background but remove JavaFX default stroke/raise that overlaps content */
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, rgba(42,138,246,0.12) 0%, rgba(42,138,246,0.06) 100%);
+    -fx-background-radius: 8;
+    -fx-border-color: transparent; /* remove stroke */
+    -fx-border-width: 0;
+    -fx-effect: none; /* remove default focus/outer glow */
+    -fx-translate-y: 0; /* don't lift the selected tab (prevents visual overlap) */
+    -fx-background-insets: 0; /* ensure background doesn't extend into content area */
+}
+.tab-pane .tab-label {
+    -fx-text-fill: -fx-primary;
+    -fx-font-weight: 700;
+    -fx-padding: 4 8 4 8;
+}
+.tab-pane .tab:selected .tab-label { -fx-text-fill: -fx-accent; }
+
+/* Small underline for headers area to separate from content */
+.tab-pane .tab-header-area {
+    -fx-border-color: transparent transparent -fx-border transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Force header area size and ensure content area doesn't get overlapped */
+.tab-pane .tab-header-area {
+    -fx-pref-height: 44px; /* fixed header height */
+    -fx-min-height: 44px;
+    -fx-max-height: 60px;
+    -fx-translate-y: 0; /* ensure header doesn't move */
+}
+.tab-pane .tab-content-area {
+    -fx-padding: 8 6 6 6; /* small padding so content never sits under header */
+}
+.tab-pane {
+    -fx-tab-min-height: 0; /* reduce odd min height behavior */
 }
 
 /* Buttons */
@@ -111,6 +163,10 @@
 .smartgraph-custom {
     -fx-font-size: 12px;
 }
+
+/* Minor utility styles referenced by FXML */
+.rightPane { -fx-background-color: -fx-surface; -fx-padding: 10; -fx-border-color: -fx-border; -fx-border-width: 1; }
+.graph-area { -fx-padding: 8; -fx-background-color: transparent; }
 
 /* Vertex visuals (bigger, blue filled circle with white stroke) */
 .smartgraph-custom .vertex, .smartgraph-custom .vertex-visual {
