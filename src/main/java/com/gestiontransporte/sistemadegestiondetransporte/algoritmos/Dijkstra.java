@@ -8,8 +8,6 @@ import java.util.*;
 
 public class Dijkstra {
 
-    public enum Criterio { TIEMPO, DISTANCIA }
-
     public static class Resultado {
         private final Map<Integer, Double> distancias; // Cambiar nombre mas claros, como peso
         private final Map<Integer, Integer> anteriores;
@@ -20,6 +18,10 @@ public class Dijkstra {
             this.anteriores = anteriores;
         }
 
+
+        public Map<Integer, Double> getDistancias() {
+            return distancias;
+        }
 
         public List<Parada> reconstruirCamino(Grafo grafo, int idOrigen, int idDestino) {
             List<Parada> camino = new ArrayList<>();
@@ -66,7 +68,7 @@ public class Dijkstra {
         }
     }
 
-    public static Resultado calcular(Grafo grafo, int idOrigen, Criterio criterio) {
+    public static Resultado calcular(Grafo grafo, int idOrigen, Criterio criterio, String tipoDeVehiculo) {
         Map<Integer, List<Ruta>> listaAdyacencia = new HashMap<>();
 
         for (Parada p : grafo.getParadas()) {
@@ -133,10 +135,11 @@ public class Dijkstra {
                 int nodoVecino = ruta.getDestino().getId();
 
                 //Pregunto si es Tiempo
-                double peso = (criterio == Criterio.TIEMPO)
-                        ? ruta.getTiempo()
-                        : ruta.getDistancia();
-
+                double peso = switch (criterio) {
+                    case TIEMPO -> CalcularTiempo.calcular(ruta, tipoDeVehiculo);
+                    case DISTANCIA -> ruta.getDistancia();
+                    case COSTO -> ruta.getCosto();
+                };
                 // Calcular cuanto costaria llegar al vecino pasando por nodoActual + su criterio
                 double nuevaDist = dist.get(nodoActual) + peso;
 
