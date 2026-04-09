@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="953.0" prefWidth="1421.0" stylesheets="@application.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gestiontransporte.sistemadegestiondetransporte.ui.MainController">
+
+
+    <!-- TOP -->
+    <top>
+        <Label text="Map.io" />
+    </top>
+
+    <!-- LEFT -->
+    <left>
+        <VBox alignment="TOP_LEFT" prefHeight="724.0" prefWidth="299.0" spacing="10" BorderPane.alignment="BOTTOM_LEFT">
+         <children>
+             <TabPane maxHeight="450.0" minHeight="250.0" prefHeight="350.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+             <tabs>
+                <Tab text="Paradas">
+                  <content>
+                    <AnchorPane fx:id="graphContainer2" minHeight="0.0" minWidth="0.0" prefHeight="194.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="btnAgregarParada" layoutX="20.0" layoutY="126.0" mnemonicParsing="false" onAction="#onAgregarParada" text="Agregar" />
+                              <Button fx:id="btnRemoverParada" layoutX="199.0" layoutY="126.0" mnemonicParsing="false" onAction="#onRemoverParada" text="Remover" />
+                              <Button fx:id="btnModificarParada" layoutX="102.0" layoutY="126.0" mnemonicParsing="false" onAction="#onModificarParada" text="Modificar" />
+                              <TextField fx:id="txtParadaNombre" layoutX="14.0" layoutY="14.0" prefHeight="34.0" prefWidth="270.0" />
+                           </children></AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Rutas">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="299.0">
+                           <children>
+                               <ComboBox fx:id="comboRutas" layoutX="19.0" layoutY="20.0" prefHeight="40.0" prefWidth="224.0" promptText="Rutas" />
+                              <Button fx:id="btnAgregarRuta" layoutX="20.0" layoutY="338.0" mnemonicParsing="false" onAction="#onAgregarRuta" prefHeight="30.0" prefWidth="227.0" text="Agregar" />
+                              <Button fx:id="btnEditarRuta" layoutX="21.0" layoutY="68.0" mnemonicParsing="false" onAction="#onEditarRuta" prefHeight="30.0" prefWidth="101.0" text="Editar" />
+                              <Button fx:id="btnRemoverRuta" layoutX="132.0" layoutY="68.0" mnemonicParsing="false" onAction="#onRemoverRuta" prefHeight="30.0" prefWidth="102.0" text="Remover" />
+                              <ComboBox fx:id="comboRutaOrigen" layoutX="16.0" layoutY="128.0" prefHeight="40.0" prefWidth="107.0" promptText="Origen" />
+                              <ComboBox fx:id="comboRutaDestino" layoutX="131.0" layoutY="128.0" prefHeight="40.0" prefWidth="113.0" promptText="Destino" />
+                              <Separator layoutX="16.0" layoutY="119.0" prefHeight="0.0" prefWidth="218.0" />
+                              <Spinner fx:id="spinnerDistancia" editable="true" layoutX="18.0" layoutY="209.0" prefHeight="38.0" prefWidth="108.0" />
+                              <Spinner fx:id="spinnerTiempo" editable="true" layoutX="139.0" layoutY="209.0" prefHeight="38.0" prefWidth="108.0" />
+                              <Label layoutX="18.0" layoutY="187.0" prefHeight="18.0" prefWidth="54.0" text="Distancia" />
+                              <Label layoutX="139.0" layoutY="187.0" prefHeight="18.0" prefWidth="54.0" text="Tiempo" />
+                              <Spinner fx:id="spinnerCosto" editable="true" layoutX="16.0" layoutY="278.0" prefHeight="38.0" prefWidth="108.0" />
+                              <Label layoutX="18.0" layoutY="258.0" prefHeight="18.0" prefWidth="54.0" text="Costo" />
+                              <Label layoutX="139.0" layoutY="258.0" prefHeight="18.0" prefWidth="54.0" text="Linea" />
+                              <TextField fx:id="txtLinea" layoutX="136.0" layoutY="278.0" prefHeight="38.0" prefWidth="108.0" />
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
+            <Pane prefHeight="338.0" prefWidth="258.0" VBox.vgrow="ALWAYS">
+               <children>
+                   <Button fx:id="btnCalcularRuta" layoutX="14.0" layoutY="139.0" mnemonicParsing="false" onAction="#onCalcularRuta" prefHeight="25.0" prefWidth="109.0" text="Calcular Ruta" textFill="#2131df" />
+                  <Label layoutX="17.0" layoutY="35.0" text="Calcular Ruta" textFill="#0b002b">
+                     <font>
+                        <Font name="Segoe UI Bold" size="17.0" />
+                     </font></Label>
+                  <RadioButton layoutX="14.0" layoutY="72.0" mnemonicParsing="false" selected="true" text="Tiempo">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="Criterio" />
+                     </toggleGroup></RadioButton>
+                  <RadioButton layoutX="88.0" layoutY="72.0" mnemonicParsing="false" text="Distancia" toggleGroup="$Criterio" />
+                  <RadioButton layoutX="14.0" layoutY="100.0" mnemonicParsing="false" text="Costo" toggleGroup="$Criterio" />
+                  <RadioButton layoutX="88.0" layoutY="100.0" mnemonicParsing="false" text="Trasbordos" toggleGroup="$Criterio" />
+               </children></Pane>
+         </children></VBox>
+    </left>
+
+    <!-- CENTER -->
+    <center>
+        <AnchorPane fx:id="graphContainer" />
+    </center>
+
+    <!-- RIGHT -->
+    <right>
+        <VBox spacing="10">
+         <children>
+            <BorderPane prefHeight="369.0" prefWidth="200.0" styleClass="rightPane">
+               <top>
+                  <Label text="Resultados" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font name="Segoe UI Bold" size="18.0" />
+                     </font></Label>
+               </top>
+               <center>
+                  <Label prefHeight="23.0" prefWidth="75.0" text="A --&gt; B" textAlignment="CENTER" textFill="#0b0028" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font name="Segoe UI" size="18.0" />
+                     </font>
+                  </Label>
+               </center></BorderPane>
+         </children></VBox>
+    </right>
+
+    <!-- BOTTOM -->
+    <bottom>
+        <Label fx:id="statusLabel" text="Estado: Listo" />
+    </bottom>
+
+</BorderPane>
