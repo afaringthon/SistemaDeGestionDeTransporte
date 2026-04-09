@@ -86,7 +86,7 @@ public class Ruta {
 
     @com.brunomnsilva.smartgraph.graphview.SmartLabelSource
     public String getEtiqueta() {
-        return getOrigen().getId() + "->" + getDestino().getId();
+        return String.format("%.1f km", distancia);
     }
 
 }
