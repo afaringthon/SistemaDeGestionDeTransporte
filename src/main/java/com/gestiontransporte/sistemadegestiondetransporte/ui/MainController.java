@@ -431,6 +431,10 @@ public class MainController {
 
 		mostrarResultado(resultado, criterio, true);
 		if (mainApp != null) mainApp.highlightParadas(resultado.getCamino());
+		if (mainApp != null) {
+			mainApp.highlightParadas(resultado.getCamino());
+			mainApp.highlightRutas(resultado.getCamino());
+		}
 	}
 
 	@FXML
@@ -523,6 +527,17 @@ public class MainController {
 			if (labelValorAlternativo != null) labelValorAlternativo.setText(valor + unidad);
 		}
 	}
+
+	@FXML
+	private void onGuardarGrafo(ActionEvent event) {
+		try {
+			com.gestiontransporte.sistemadegestiondetransporte.persistencia.JsonData.guardar(grafo);
+			showInfo("Grafo guardado correctamente");
+		} catch (Exception e) {
+			showError("No se pudo guardar el grafo: " + e.getMessage());
+		}
+	}
+
 
 	@FXML
 	private void onCalcularRuta(ActionEvent event) {
