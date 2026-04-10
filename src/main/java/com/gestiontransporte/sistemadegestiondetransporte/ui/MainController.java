@@ -137,16 +137,19 @@ public class MainController {
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20));
 		Label label1 = new Label("Selecciona la parada:");
+
 		ComboBox<Parada> combo = new ComboBox<>();
 		combo.getItems().setAll(grafo.getParadas());
 		combo.setMaxWidth(Double.MAX_VALUE);
 		Label label2 = new Label("Nuevo nombre:");
 		TextField txtNombre = new TextField();
 		txtNombre.setPromptText("Nuevo nombre");
+
 		Button btnConfirmar = new Button("Modificar");
 		btnConfirmar.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white;");
 		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
 		btnConfirmar.setOnAction(e -> {
+
 			Parada seleccionada = combo.getValue();
 			String nuevoNombre = txtNombre.getText().trim();
 			if (seleccionada == null) { showError("Selecciona una parada"); return; }
@@ -171,17 +174,21 @@ public class MainController {
 		Stage popup = crearPopup("Eliminar Parada", 300, 160);
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20));
+
 		Label label = new Label("Selecciona la parada a eliminar:");
 		ComboBox<Parada> combo = new ComboBox<>();
 		combo.getItems().setAll(grafo.getParadas());
+
 		combo.setMaxWidth(Double.MAX_VALUE);
 		Button btnConfirmar = new Button("Eliminar");
 		btnConfirmar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white;");
 		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
+
 		btnConfirmar.setOnAction(e -> {
 			Parada seleccionada = combo.getValue();
 			if (seleccionada == null) { showError("Selecciona una parada"); return; }
 			boolean ok = grafo.eliminarParada(seleccionada);
+
 			if (ok) {
 				showInfo("Parada eliminada: " + seleccionada.getNombre());
 				actualizarCombosParadas();
@@ -201,6 +208,7 @@ public class MainController {
 		Stage popup = crearPopup("Agregar Ruta", 320, 400);
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20));
+
 		ComboBox<Parada> comboOrigen = new ComboBox<>();
 		comboOrigen.getItems().setAll(grafo.getParadas());
 		comboOrigen.setPromptText("Origen");
@@ -209,27 +217,34 @@ public class MainController {
 		comboDestino.getItems().setAll(grafo.getParadas());
 		comboDestino.setPromptText("Destino");
 		comboDestino.setMaxWidth(Double.MAX_VALUE);
+
 		TextField txtDistancia = new TextField();
 		txtDistancia.setPromptText("Distancia (km)");
 		TextField txtTiempo = new TextField();
 		txtTiempo.setPromptText("Tiempo (min)");
 		TextField txtCosto = new TextField();
 		txtCosto.setPromptText("Costo");
+
 		Button btnConfirmar = new Button("Agregar");
 		btnConfirmar.setStyle("-fx-background-color: #16a34a; -fx-text-fill: white;");
 		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
 		btnConfirmar.setOnAction(e -> {
+
 			Parada o = comboOrigen.getValue();
 			Parada d = comboDestino.getValue();
 			if (o == null || d == null) { showError("Selecciona origen y destino"); return; }
 			if (o.equals(d)) { showError("Origen y destino no pueden ser iguales"); return; }
 			try {
+
 				double dist = Double.parseDouble(txtDistancia.getText().trim());
 				double tiem = Double.parseDouble(txtTiempo.getText().trim());
 				double costo = Double.parseDouble(txtCosto.getText().trim());
+
 				if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return; }
 				if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+
 				Ruta nuevaRuta = new Ruta(o, d, dist, tiem, costo);
+
 				boolean ok = grafo.agregarRuta(nuevaRuta);
 				if (ok) {
 					showInfo("Ruta agregada entre " + o.getNombre() + " y " + d.getNombre());
@@ -261,15 +276,18 @@ public class MainController {
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20));
 		Label label = new Label("Selecciona la ruta a modificar:");
+
 		ComboBox<Ruta> comboRutas = new ComboBox<>();
 		comboRutas.getItems().setAll(grafo.getTodasLasRutas());
 		comboRutas.setMaxWidth(Double.MAX_VALUE);
+
 		TextField txtDistancia = new TextField();
 		txtDistancia.setPromptText("Nueva distancia (km)");
 		TextField txtTiempo = new TextField();
 		txtTiempo.setPromptText("Nuevo tiempo (min)");
 		TextField txtCosto = new TextField();
 		txtCosto.setPromptText("Nuevo costo");
+
 		Button btnConfirmar = new Button("Modificar");
 		btnConfirmar.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white;");
 		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
@@ -280,10 +298,13 @@ public class MainController {
 				double dist = Double.parseDouble(txtDistancia.getText().trim());
 				double tiem = Double.parseDouble(txtTiempo.getText().trim());
 				double costo = Double.parseDouble(txtCosto.getText().trim());
+
 				if (dist <= 0) { showError("La distancia debe ser mayor a 0"); return; }
 				if (tiem <= 0) { showError("El tiempo debe ser mayor a 0"); return; }
+
 				Ruta nuevaRuta = new Ruta(seleccionada.getOrigen(), seleccionada.getDestino(), dist, tiem, costo);
 				boolean ok = grafo.modificarRuta(seleccionada, nuevaRuta);
+
 				if (ok) {
 					showInfo("Ruta modificada correctamente");
 					actualizarCombosParadas();
@@ -312,19 +333,35 @@ public class MainController {
 		VBox layout = new VBox(10);
 		layout.setPadding(new Insets(20));
 		Label label = new Label("Selecciona la ruta a eliminar:");
+
 		ComboBox<Ruta> comboRutas = new ComboBox<>();
 		comboRutas.getItems().setAll(grafo.getTodasLasRutas());
 		comboRutas.setMaxWidth(Double.MAX_VALUE);
+
 		Button btnConfirmar = new Button("Eliminar");
 		btnConfirmar.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white;");
 		btnConfirmar.setMaxWidth(Double.MAX_VALUE);
 		btnConfirmar.setOnAction(e -> {
+
 			Ruta seleccionada = comboRutas.getValue();
+
 			if (seleccionada == null) { showError("Selecciona una ruta"); return; }
+
 			boolean ok = grafo.eliminarRuta(seleccionada);
+
 			if (ok) {
+
+				// verificar si sigue siendo conexo
+				if (!grafo.esConexo()) {
+					// restaurar la ruta
+					grafo.agregarRuta(seleccionada);
+					showError("No se puede eliminar la ruta, el grafo dejaría de ser conexo");
+					return;
+				}
+
 				showInfo("Ruta eliminada: " + seleccionada.getOrigen().getNombre() + " -> " + seleccionada.getDestino().getNombre());
 				actualizarCombosParadas();
+
 				if (mainApp != null) mainApp.redraw();
 				popup.close();
 			} else {
@@ -338,18 +375,23 @@ public class MainController {
 
 	@FXML
 	private void onBuscarRuta(ActionEvent event) {
+
 		if (grafo == null) { showError("Grafo no inicializado"); return; }
+
 		Parada origen = comboCalcOrigen != null ? comboCalcOrigen.getValue() : null;
 		Parada destino = comboCalcDestino != null ? comboCalcDestino.getValue() : null;
 		String criterioStr = comboCriterio != null ? comboCriterio.getValue() : null;
 		String algoritmoStr = comboAlgoritmo != null ? comboAlgoritmo.getValue() : null;
 		String vehiculo = comboVehiculo != null ? comboVehiculo.getValue() : "Carro";
+
 		if (origen == null || destino == null) { showError("Selecciona origen y destino"); return; }
 		if (origen.equals(destino)) { showError("Origen y destino no pueden ser iguales"); return; }
 		if (criterioStr == null) { showError("Selecciona un criterio"); return; }
 		if (algoritmoStr == null) { showError("Selecciona un algoritmo"); return; }
+
 		Criterio criterio = Criterio.valueOf(criterioStr);
 		ResultadoCamino resultado = calcularRuta(origen, destino, criterio, algoritmoStr, vehiculo);
+
 		if (resultado == null || resultado.getCamino().isEmpty()) {
 			showError("No se encontró camino entre las paradas seleccionadas");
 			return;
@@ -363,31 +405,41 @@ public class MainController {
 	@FXML
 	private void onVerAlternativa(ActionEvent event) {
 		if (grafo == null) { showError("Grafo no inicializado"); return; }
+
 		Parada origen = comboCalcOrigen != null ? comboCalcOrigen.getValue() : null;
 		Parada destino = comboCalcDestino != null ? comboCalcDestino.getValue() : null;
 		String criterioStr = comboCriterio != null ? comboCriterio.getValue() : null;
 		String algoritmoStr = comboAlgoritmo != null ? comboAlgoritmo.getValue() : null;
 		String vehiculo = comboVehiculo != null ? comboVehiculo.getValue() : "Carro";
+
 		if (origen == null || destino == null) { showError("Selecciona origen y destino"); return; }
 		if (criterioStr == null) { showError("Selecciona un criterio"); return; }
 		if (algoritmoStr == null) { showError("Selecciona un algoritmo"); return; }
+
 		Criterio criterio = Criterio.valueOf(criterioStr);
 		ResultadoCamino principal = calcularRuta(origen, destino, criterio, algoritmoStr, vehiculo);
+
 		if (principal == null || principal.getCamino().isEmpty()) {
 			showError("No se encontró ruta principal");
 			return;
 		}
+
 		Ruta rutaABloquear = principal.getRutaABloquear(grafo);
+
 		if (rutaABloquear == null) { showError("No hay ruta alternativa disponible"); return; }
+
 		grafo.eliminarRuta(rutaABloquear);
 		ResultadoCamino alternativa = calcularRuta(origen, destino, criterio, algoritmoStr, vehiculo);
 		grafo.agregarRuta(rutaABloquear);
+
 		if (alternativa == null || alternativa.getCamino().isEmpty()) {
 			showError("No hay ruta alternativa disponible");
 			return;
 		}
+
 		mostrarResultado(principal, criterio, true);
 		mostrarResultado(alternativa, criterio, false);
+
 		if (mainApp != null) {
 			mainApp.highlightParadas(principal.getCamino());
 			mainApp.highlightParadasAlternativa(alternativa.getCamino());
@@ -397,6 +449,7 @@ public class MainController {
 	private ResultadoCamino calcularRuta(Parada origen, Parada destino, Criterio criterio, String algoritmo, String vehiculo) {
 		int idOrigen = origen.getId();
 		int idDestino = destino.getId();
+
 		return switch (algoritmo) {
 			case "DIJKSTRA" -> {
 				Dijkstra.Resultado r = Dijkstra.calcular(grafo, idOrigen, criterio, vehiculo);
@@ -408,6 +461,7 @@ public class MainController {
 				BellmanFord bf = new BellmanFord();
 				yield bf.calcularBellman(grafo, idOrigen, idDestino, criterio, vehiculo);
 			}
+
 			case "BFS" -> {
 				BFS bfs = new BFS();
 				yield bfs.calcularBFS(grafo, idOrigen, idDestino);
@@ -419,6 +473,7 @@ public class MainController {
 	private void mostrarResultado(ResultadoCamino resultado, Criterio criterio, boolean esPrincipal) {
 		StringBuilder camino = new StringBuilder();
 		List<Parada> paradas = resultado.getCamino();
+
 		for (int i = 0; i < paradas.size(); i++) {
 			camino.append(paradas.get(i).getNombre());
 			if (i < paradas.size() - 1) camino.append(" -> ");
@@ -431,6 +486,7 @@ public class MainController {
 			case DISTANCIA -> " km";
 			case COSTO -> " RD$";
 		};
+
 		if (esPrincipal) {
 			if (labelRutaPrincipal != null) labelRutaPrincipal.setText(camino.toString());
 			if (labelValorPrincipal != null) labelValorPrincipal.setText(valor + unidad);

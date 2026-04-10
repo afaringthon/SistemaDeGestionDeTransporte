@@ -65,7 +65,6 @@ public class BFS {
         List<Parada> camino = reconstruirCamino(grafo, anteriores, idOrigen, idDestino);
 
         // si no hay camino valido, devuelve una lista vacia
-        // -1 por que este es un valor imposible de saltos, osea no hubo camino valido
         if(camino.isEmpty()){
             return new ResultadoCamino(camino, -1);
         }

@@ -1,5 +1,8 @@
 package com.gestiontransporte.sistemadegestiondetransporte.modelo;
 
+import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.BFS;
+import com.gestiontransporte.sistemadegestiondetransporte.algoritmos.ResultadoCamino;
+
 import java.util.*;
 
 public class Grafo {
@@ -275,6 +278,26 @@ public class Grafo {
 
     public List<Ruta> getRutasDesde(Parada parada) {
         return new ArrayList<>(adyacencia.getOrDefault(parada, Collections.emptyList()));
+    }
+
+    public boolean esConexo() {
+
+        List<Parada> paradas = getParadas();
+
+        if (paradas.isEmpty()) return true;
+
+        BFS bfs = new BFS();
+
+        for (Parada destino : paradas) {
+            // saltar la primera
+            if (destino.equals(paradas.get(0))) continue;
+
+            ResultadoCamino resultado = bfs.calcularBFS(this, paradas.get(0).getId(), destino.getId());
+
+            if (resultado.getCamino().isEmpty()) return false;
+        }
+
+        return true;
     }
 
 }

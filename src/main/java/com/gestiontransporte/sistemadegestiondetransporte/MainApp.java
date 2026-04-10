@@ -103,7 +103,7 @@ public class MainApp extends Application {
             currentGraph = sg;
             panel.getStyleClass().add("smartgraph-custom");
             // Let SmartGraph handle automatic layout so vertices spread without manual moves
-            panel.setAutomaticLayout(true);
+            panel.setAutomaticLayout(false);
 
             final SmartGraphPanel[] panelRef = new SmartGraphPanel[] { panel };
             controllerRef.setGraphPane(panel);
