@@ -72,13 +72,18 @@ a) BFS (Breadth-First Search)
 - Representación: si se usa lista de adyacencia.
 - Tiempo: O(n + m). Justificación: cada vértice se encola/desencola una vez (O(n)) y cada arista se explora una vez (O(m)).
 - Espacio: O(n) adicional (cola + arreglo `visited`/marcas). Si se guarda el orden/parentales puede sumar O(n).
+- Uso en este proyecto: inicialmente se consideró BFS para:
+  - verificar si el grafo es conexo (alcanzabilidad entre paradas), y
+  - obtener una ruta con el **menor número de paradas** (menor cantidad de vértices en el camino),
+  siguiendo la idea que habíamos comentado con algunos compañeros.
+  Finalmente se mantuvo el enfoque anterior (basado en los pesos de las rutas, por ejemplo tiempo/distancia/costo) para el cálculo principal de rutas, y BFS quedó como referencia teórica y para el análisis de conectividad.
 
 b) Dijkstra (implementado en `algoritmos/Dijkstra.java`)
 
 - Resumen de la implementación actual: construye un `Map<Integer, List<Ruta>> listaAdyacencia` (coste O(n + m) para construirlo a partir de `getTodasLasRutas()`), luego usa una `PriorityQueue<NodoDistancia>` para seleccionar el siguiente vértice con menor distancia.
 - Tiempo: O((n + m) log n) en la implementación con `PriorityQueue`. Explicación:
   - Construcción de la lista de adyacencia: O(n + m).
-  - En el bucle principal cada extracción de la cola cuesta O(log n) y puede ocurrir hasta O(n + numberOfRelaxes) veces; relajaciones de aristas pueden insertar elementos en la cola (cada vez se añade un posible nuevo par (v,dist)), en el peor caso cada arista puede generar una inserción → O(m) inserciones. Así, las operaciones de cola costarán O((n + m) log n). Simplificando: O((n + m) log n). Muchas fuentes lo escriben como O(m log n) cuando m dominates.
+  - En el bucle principal cada extracción de la cola cuesta O(log n) y puede ocurrir hasta O(n + numberOfRelaxes) veces; relajaciones de aristas pueden insertar elementos en la cola (cada vez se añade un posible nuevo par (v,dist)), en el peor caso cada arista puede generar una inserción → O(m) inserciones. Así, las operaciones de cola costarán O((n + m) log n). Simplificando: O((n + m) log n). Muchas fuentes lo escriben como O(m log n) cuando m domina.
 - Espacio: O(n + m) para estructuras auxiliares (mapas `dist`, `prev`, `procesado` que son O(n) y la lista de adyacencia O(n + m) temporal). La `PriorityQueue` ocupa hasta O(n) simultáneamente en la práctica.
 
 c) Bellman-Ford (archivo `algoritmos/BellmanFord.java` en el proyecto)
@@ -100,4 +105,3 @@ c) Bellman-Ford (archivo `algoritmos/BellmanFord.java` en el proyecto)
 - `BFS`/`DFS`: Tiempo O(n + m), Espacio O(n)
 - `Dijkstra` (con PriorityQueue): Tiempo O((n + m) log n) (a menudo escrito O(m log n)), Espacio O(n + m)
 - `Bellman-Ford`: Tiempo O(n * m), Espacio O(n)
-
