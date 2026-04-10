@@ -4,8 +4,7 @@ Este documento entrega el análisis asintótico (temporal y espacial) de las pri
 
 Contenido:
 - Operaciones sobre la estructura `Grafo` (`modelo/Grafo.java`)
-- Algoritmos implementados (BFS, DFS, Dijkstra, Bellman-Ford)
-- Notas de implementación y recomendaciones de optimización
+- Algoritmos implementados (BFS, Dijkstra, Bellman-Ford)
 
 --------------------------------------------------------------------------------
 
@@ -74,7 +73,7 @@ a) BFS (Breadth-First Search)
 - Tiempo: O(n + m). Justificación: cada vértice se encola/desencola una vez (O(n)) y cada arista se explora una vez (O(m)).
 - Espacio: O(n) adicional (cola + arreglo `visited`/marcas). Si se guarda el orden/parentales puede sumar O(n).
 
-c) Dijkstra (implementado en `algoritmos/Dijkstra.java`)
+b) Dijkstra (implementado en `algoritmos/Dijkstra.java`)
 
 - Resumen de la implementación actual: construye un `Map<Integer, List<Ruta>> listaAdyacencia` (coste O(n + m) para construirlo a partir de `getTodasLasRutas()`), luego usa una `PriorityQueue<NodoDistancia>` para seleccionar el siguiente vértice con menor distancia.
 - Tiempo: O((n + m) log n) en la implementación con `PriorityQueue`. Explicación:
@@ -82,7 +81,7 @@ c) Dijkstra (implementado en `algoritmos/Dijkstra.java`)
   - En el bucle principal cada extracción de la cola cuesta O(log n) y puede ocurrir hasta O(n + numberOfRelaxes) veces; relajaciones de aristas pueden insertar elementos en la cola (cada vez se añade un posible nuevo par (v,dist)), en el peor caso cada arista puede generar una inserción → O(m) inserciones. Así, las operaciones de cola costarán O((n + m) log n). Simplificando: O((n + m) log n). Muchas fuentes lo escriben como O(m log n) cuando m dominates.
 - Espacio: O(n + m) para estructuras auxiliares (mapas `dist`, `prev`, `procesado` que son O(n) y la lista de adyacencia O(n + m) temporal). La `PriorityQueue` ocupa hasta O(n) simultáneamente en la práctica.
 
-d) Bellman-Ford (archivo `algoritmos/BellmanFord.java` en el proyecto)
+c) Bellman-Ford (archivo `algoritmos/BellmanFord.java` en el proyecto)
 
 - Tiempo: O(n * m). Justificación: el algoritmo relaja todas las aristas repetidamente (n-1) veces; cada iteración recorre todas las aristas O(m), por tanto O(n*m).
 - Espacio: O(n) (vectores `dist` y `prev`), más O(m) si se mantiene la lista de aristas.
